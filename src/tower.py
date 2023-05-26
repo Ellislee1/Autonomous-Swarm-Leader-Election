@@ -38,6 +38,8 @@ class Tower:
         self.drones = set()
         
         self.poly = Polygon(self.coords)
+        
+        self.has_hub = False
     
     @property
     def colour(self) -> hex:
@@ -131,7 +133,10 @@ class Tower:
             thresh (float, optional): The threshold to change the value. Defaults to 0.8.
         """
         if np.random.rand() > thresh:
-            self.base_usage = np.clip(np.random.normal(0.3,0.2),0,1)
+            if self.has_hub:
+                self.base_usage = np.clip(np.random.normal(0.1,0.1),0,1)
+            else:
+                self.base_usage = np.clip(np.random.normal(0.3,0.2),0,1)
             
         
         

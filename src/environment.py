@@ -55,8 +55,9 @@ class Environment:
                 site = np.random.uniform((0,0),self.scree_size, 2)
 
                 for tower in self.towers:
-                    if tower.includes(Point(site)):
+                    if not tower.has_hub and tower.includes(Point(site)):
                         self.sites.append(site)
+                        tower.has_hub = True
                         valid = True
 
                         break
