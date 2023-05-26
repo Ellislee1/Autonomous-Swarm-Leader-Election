@@ -4,6 +4,7 @@ from src.drone import Drone
 from typing import List
 
 from src.leader_selections import *
+from src.functions import gen_gradients
 
 FramePerSec = pygame.time.Clock()
 
@@ -29,6 +30,10 @@ class Environment:
         self.running = False
         
         self.font = pygame.font.SysFont(None, 24)
+        
+        self.drone_colours = gen_gradients('#979899','#037bfc', 10)
+        
+        print(self.drone_colours)
         
     def gen_tower_env(self, hex_size, n_rings, max_signal):
         self.towers = ring_to(self.tower_centre, n_rings, hex_size, max_signal)
@@ -103,10 +108,9 @@ class Environment:
             if drone == self.leader:
                 c = (72, 224, 102)
                 pygame.draw.circle(self.screen, (0,0,0), drone.pos, 8)
-            elif drone.is_active:
-                c = (72, 179, 224)
             else:
-                c = (119, 120, 119)
+                c = self.drone_colours[int(((drone.bat*100)//10))]
+                # c = (0,0,0)
             
             pygame.draw.circle(self.screen, c, drone.pos, 6)
         
