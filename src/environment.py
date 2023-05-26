@@ -6,12 +6,14 @@ from typing import List
 from src.leader_selections import *
 from src.functions import gen_gradients
 
+from shapely.geometry import Point
+
 FramePerSec = pygame.time.Clock()
 
 RAD = 10
 
 class Environment:
-    def __init__(self, screen_size: (int,int) = (800,800), fps:int=60, hex_size:float = 75, n_rings:int = 2, tower_centre:(float,float) = None, n_drones:int = 5, max_signal: List[int] = None):
+    def __init__(self, screen_size: (int,int) = (800,800), fps:int=60, hex_size:float = 75, n_rings:int = 2, tower_centre:(float,float) = None, n_drones:int = 5, max_signal: List[int] = None, sites = 3):
         if max_signal is None:
             max_signal = [5]
         self.scree_size = self.width,self.height = screen_size
@@ -20,6 +22,8 @@ class Environment:
         self.hex_size = hex_size
         self.tower_centre = (self.width/2, self.height/2) if tower_centre is None else tower_centre
         self.gen_tower_env(hex_size, n_rings, max_signal)
+        
+        self.init_sites(sites)
 
         self.init_drones(n_drones)
 
@@ -42,6 +46,20 @@ class Environment:
         
     def init_drones(self,n_drones:int):
         self.drones = [Drone(self.scree_size) for _ in range(n_drones)]
+        
+    def init_sites(self, sites):
+        self.sites = []
+        for _ in range(sites):
+            valid = False
+            while not valid:
+                site = np.random.uniform((0,0),self.scree_size, 2)
+
+                for tower in self.towers:
+                    if tower.includes(Point(site)):
+                        self.sites.append(site)
+                        valid = True
+
+                        break
         
     def run(self):
         self.running = True
@@ -90,13 +108,19 @@ class Environment:
     
     def update_leader(self):
         self.leader = strong_signal(self.towers, self.drones, self.leader)
-        
-        
     
     def draw(self):
         self.screen.fill((255,255,255))
         self.draw_towers()
+        self.draw_sites()
         self.draw_drones()
+        
+    def draw_sites(self):
+        for site in self.sites:
+            site_image = pygame.image.load('assets/launchsite.png')
+            site_image = pygame.transform.scale(site_image, (30,30))
+            
+            self.screen.blit(site_image, site)
         
     def draw_towers(self):
         for tower in self.towers:
