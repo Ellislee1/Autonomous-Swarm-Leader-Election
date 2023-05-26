@@ -9,8 +9,8 @@ from src.functions import gen_gradients
 # from src.drone import Drone
 
 DIRECTION_VECTORS = {}
-C1='#ddfaac'
-C2 = "#FF0000"
+C2='#ddfaac'
+C1 = "#FF0000"
 
 class Tower:
     """The Tower describes a single cell tower and its coverage and bandwith along with a list of drones connected to it.
@@ -31,8 +31,9 @@ class Tower:
         self.size = size
         
         self.max_bandwith = max_bandwith
+        self.base_usage = 0
         
-        self.gradients = gen_gradients(C1, C2, self.max_bandwith+1)
+        self.gradients = gen_gradients(C1, C2, 11)
         
         self.drones = set()
         
@@ -45,7 +46,7 @@ class Tower:
         Returns:
             hex: The hecadecimal value of the colour.
         """
-        return self.gradients[min(5,self.n_drones)]
+        return self.gradients[int((self.bandwith_as_percent*100)//10)]
     
     @property
     def n_drones(self) -> int:
@@ -63,7 +64,7 @@ class Tower:
         Returns:
             float: The available bandwith
         """
-        return max(1-(self.n_drones/self.max_bandwith),0)
+        return max(1-((self.n_drones/self.max_bandwith)+self.base_usage),0)
     
     @property   
     def centre(self)-> (float,float):
@@ -122,6 +123,17 @@ class Tower:
             bool: If the point is included.
         """
         return self.poly.contains(point)
+    
+    def update_bandwith(self, thresh:float = 0.6):
+        """Set the towers base bandwith usage, this can change over time.
+
+        Args:
+            thresh (float, optional): The threshold to change the value. Defaults to 0.8.
+        """
+        if np.random.rand() > thresh:
+            self.base_usage = np.clip(np.random.normal(0.3,0.2),0,1)
+            
+        
         
 def create_hex(_hex: Tower, _vec: Tower, size: float, offset: (float,float), max_bandwith:int) -> Tower:
     """Generate a new tower.
