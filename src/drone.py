@@ -3,9 +3,13 @@ from shapely.geometry import Point
 import numpy as np
 
 from math import atan2
+import time
+
 
 class Drone:
     def __init__(self, screen_size, max_speed:float = 30, init_pos:(float,float) = None, init_vel:(float,float)=None, init_bat:float = None, max_operating_time:float = 120, active_tower:Tower = None, accel_change_prob:float = 0.2, max_accel:float = 10):
+        self.gen_time = time.time_ns() // 1_000_000
+        
         self.pos = np.random.uniform((0,0), screen_size, 2) if init_pos is None else init_pos
         self.vel = init_vel if init_vel is not None else np.random.uniform(-max_speed, max_speed,2)
         self.bat = init_bat if init_bat is not None else np.random.uniform(0.5,1)
@@ -20,6 +24,10 @@ class Drone:
         self._active_tower = active_tower
         
         self.accel_change_prob = accel_change_prob
+        
+        self.id = hex(abs(hash(f'{self.gen_time}{max_operating_time}{self.bat}')))
+        
+        print(self.id, self.gen_time)
     
     @property
     def active_tower(self)->Tower:
