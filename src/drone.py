@@ -2,11 +2,13 @@ from src.tower import Tower
 from shapely.geometry import Point
 import numpy as np
 
+from math import atan2
+
 class Drone:
     def __init__(self, screen_size, max_speed:float = 30, init_pos:(float,float) = None, init_vel:(float,float)=None, init_bat:float = None, max_operating_time:float = 120, active_tower:Tower = None, accel_change_prob:float = 0.2, max_accel:float = 10):
         self.pos = np.random.uniform((0,0), screen_size, 2) if init_pos is None else init_pos
         self.vel = init_vel if init_vel is not None else np.random.uniform(-max_speed, max_speed,2)
-        self.bat = init_bat if init_bat is not None else np.random.uniform(0.7,1)
+        self.bat = init_bat if init_bat is not None else np.random.uniform(0.5,1)
         self.accel = np.array([0,0])
         self.max_speed = max_speed
         self.max_accel = max_accel
@@ -22,6 +24,23 @@ class Drone:
     @property
     def active_tower(self)->Tower:
         return self._active_tower
+    
+    def poly(self, r: float):
+        h = np.rad2deg(self.heading)
+        
+        points = []
+        
+        for i in range(0, 360, 360//3):
+            theta = np.deg2rad((i+h)%360)
+            
+            points.append([self.pos[0]+(r*np.cos(theta)), self.pos[1]+(r*np.sin(theta))])
+        return np.array(points)
+            
+        
+    
+    @property
+    def heading(self):
+        return atan2(self.vel[1], self.vel[0])
     
     @active_tower.setter
     def active_tower(self, tower:Tower):

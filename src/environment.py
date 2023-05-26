@@ -8,6 +8,8 @@ from src.functions import gen_gradients
 
 FramePerSec = pygame.time.Clock()
 
+RAD = 10
+
 class Environment:
     def __init__(self, screen_size: (int,int) = (800,800), fps:int=60, hex_size:float = 75, n_rings:int = 2, tower_centre:(float,float) = None, n_drones:int = 5, max_signal: List[int] = None):
         if max_signal is None:
@@ -31,7 +33,7 @@ class Environment:
         
         self.font = pygame.font.SysFont(None, 24)
         
-        self.drone_colours = gen_gradients('#979899','#037bfc', 10)
+        self.drone_colours = gen_gradients('#3d3d3d','#3b74f7', 10)
         
         print(self.drone_colours)
         
@@ -107,10 +109,12 @@ class Environment:
         for drone in self.drones:
             if drone == self.leader:
                 c = (72, 224, 102)
-                pygame.draw.circle(self.screen, (0,0,0), drone.pos, 8)
+                # pygame.draw.circle(self.screen, (0,0,0), drone.pos, 8)
+                pygame.draw.polygon(self.screen, (0,0,0), drone.poly(RAD+4))
             else:
                 c = self.drone_colours[int(((drone.bat*100)//10))]
                 # c = (0,0,0)
             
-            pygame.draw.circle(self.screen, c, drone.pos, 6)
+            # pygame.draw.circle(self.screen, c, drone.pos, 6)
+            pygame.draw.polygon(self.screen, c, drone.poly(RAD))
         
