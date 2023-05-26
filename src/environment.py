@@ -84,12 +84,19 @@ class Environment:
     
     def step(self, i: int):
         self.update_drones()
-        self.update_tower_assignments()
+        self.update_towers(i)
         self.update_leader()
         
     def update_drones(self):
         for drone in self.drones:
             drone.update(1/self.fps, self.scree_size)
+            
+    def update_towers(self, t):
+        self.update_tower_assignments()
+        
+        if t ==0:
+            for tower in self.towers:
+                tower.update_bandwith()
             
     def update_tower_assignments(self):
         for drone in self.drones:
@@ -135,9 +142,11 @@ class Environment:
                 c = (72, 224, 102)
                 # pygame.draw.circle(self.screen, (0,0,0), drone.pos, 8)
                 pygame.draw.polygon(self.screen, (0,0,0), drone.poly(RAD+4))
-            else:
+            elif drone.is_active:
                 c = self.drone_colours[int(((drone.bat*100)//10))]
-                # c = (0,0,0)
+            else:
+                pygame.draw.polygon(self.screen, (self.drone_colours[0]), drone.poly(RAD-2))
+                continue
             
             # pygame.draw.circle(self.screen, c, drone.pos, 6)
             pygame.draw.polygon(self.screen, c, drone.poly(RAD))
