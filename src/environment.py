@@ -7,17 +7,20 @@ from src.leader_selections import *
 from src.functions import gen_gradients
 
 from shapely.geometry import Point
+import random
 
 FramePerSec = pygame.time.Clock()
 
 RAD = 10
 
 class Environment:
-    def __init__(self, screen_size: (int,int) = (800,800), fps:int=60, hex_size:float = 75, n_rings:int = 2, tower_centre:(float,float) = None, n_drones:int = 5, max_signal: List[int] = None, sites = 3):
+    def __init__(self, screen_size: (int,int) = (800,800), fps:int=60, hex_size:float = 75, n_rings:int = 2, tower_centre:(float,float) = None, n_drones:int = 5, max_signal: List[int] = None, sites = 3, prob_inactiv_towers: int = 0.3):
         if max_signal is None:
             max_signal = [5]
         self.scree_size = self.width,self.height = screen_size
         self.fps = fps
+        
+        self.prob_inactiv_towers = prob_inactiv_towers
 
         self.hex_size = hex_size
         self.tower_centre = (self.width/2, self.height/2) if tower_centre is None else tower_centre
@@ -44,6 +47,10 @@ class Environment:
     def gen_tower_env(self, hex_size, n_rings, max_signal):
         self.towers = ring_to(self.tower_centre, n_rings, hex_size, max_signal)
         
+        for tower in self.towers:
+            if random.random() < self.prob_inactiv_towers:
+                tower.active = False
+        
     def init_drones(self,n_drones:int):
         self.drones = [Drone(self.scree_size) for _ in range(n_drones)]
         
@@ -55,6 +62,8 @@ class Environment:
                 site = np.random.uniform((0,0),self.scree_size, 2)
 
                 for tower in self.towers:
+                    if not tower.active:
+                        continue
                     if not tower.has_hub and tower.includes(Point(site)):
                         self.sites.append(site)
                         tower.has_hub = True
@@ -94,10 +103,12 @@ class Environment:
             
     def update_towers(self, t):
         self.update_tower_assignments()
-        
+
         if t ==0:
             for tower in self.towers:
                 tower.update_bandwith()
+
+                tower.active = random.random() >= self.prob_inactiv_towers
             
     def update_tower_assignments(self):
         for drone in self.drones:
@@ -132,6 +143,8 @@ class Environment:
         
     def draw_towers(self):
         for tower in self.towers:
+            if not tower.active:
+                continue
             pygame.draw.polygon(self.screen, tower.colour, tower.coords)
             pygame.draw.polygon(self.screen, (50,50,50), tower.coords, width=3)
             img = self.font.render(f'{round(tower.bandwith_as_percent,2)}', True, (0,0,0))

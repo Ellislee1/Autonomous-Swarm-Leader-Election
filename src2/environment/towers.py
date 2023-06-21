@@ -12,15 +12,22 @@ DIRECTION_VECTORS = {}
 C2='#ddfaac'
 C1 = "#FF0000"
 
-# class Tower_List:
-#     self.towers_list = []
+class Tower_List:
+    def __init__(self, towers:None):
+        self.tower_list = []
+        
+        if towers:
+            self.add_towers(towers)
     
-#     def add_towers(self, towers):
-#         for tower in towers:
-#             self.towwer_list.append(tower)
+    def add_towers(self, towers):
+        for tower in towers:
+            self.tower_list.append(tower)
             
-#     def __iter__(self):
-#         return self.towers_list
+    def update_towers(self, aircraft):
+        pass
+            
+    def __iter__(self):
+        return iter(self.tower_list)
 
 class Tower:
     """The Tower describes a single cell tower and its coverage and bandwith along with a list of drones connected to it.
