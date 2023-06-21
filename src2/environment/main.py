@@ -55,7 +55,7 @@ class Environment:
     def state(self):
         return self.__state.aircraft
     
-    def gen_towers(self, rings=5, size=70,max_signal=[10]):
+    def gen_towers(self, rings=2, size=200,max_signal=[10]):
         towers = ring_to(self.grid_centre, rings, size, max_signal)
         
         return Tower_List(towers)
@@ -66,6 +66,7 @@ class Environment:
         while self.running:
             
             self.__state.update(ts)
+            self.towers.update_towers(self.__state.aircraft)
             
             time.sleep(ts)
          

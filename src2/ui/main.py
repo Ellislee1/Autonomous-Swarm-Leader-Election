@@ -72,5 +72,5 @@ class UI:
         for tower in self.env.towers:
             pygame.draw.polygon(self.screen, tower.colour, tower.coords)
             pygame.draw.polygon(self.screen, (50,50,50), tower.coords, width=3)
-            # img = self.font.render(f'{round(tower.bandwith_as_percent,2)}', True, (0,0,0))
-            # self.screen.blit(img, tower.centre)
+            img = self.default_font.render(f'{round(tower.bandwith_as_percent,2)}', True, (0,0,0))
+            self.screen.blit(img, tower.centre)

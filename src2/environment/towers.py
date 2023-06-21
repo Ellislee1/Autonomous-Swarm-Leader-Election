@@ -1,3 +1,4 @@
+import contextlib
 import itertools
 from math import sqrt, cos, sin,pi
 import numpy as np
@@ -24,7 +25,14 @@ class Tower_List:
             self.tower_list.append(tower)
             
     def update_towers(self, aircraft):
-        pass
+        for i, pos in enumerate(aircraft.positions):
+            point = Point(pos) 
+            
+            for tower in self.tower_list:
+                if tower.includes(point):
+                    tower.add(i)
+                else:
+                    tower.drop(i)
             
     def __iter__(self):
         return iter(self.tower_list)
@@ -121,12 +129,10 @@ class Tower:
         Args:
             drone (Drone): The drone to try and remove,.
         """
-        try:
+        with contextlib.suppress(Exception):
             self.drones.remove(drone)
-        except Exception:
-            print('Drone not found in tower, skipping drop.')
     
-    def add(self, drone:object):
+    def add(self, drone:int):
         """Add drone to the tower influence.
 
         Args:
