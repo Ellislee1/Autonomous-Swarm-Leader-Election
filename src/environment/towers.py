@@ -1,3 +1,4 @@
+import contextlib
 import itertools
 from math import sqrt, cos, sin,pi
 import numpy as np
@@ -12,11 +13,85 @@ DIRECTION_VECTORS = {}
 C2='#ddfaac'
 C1 = "#FF0000"
 
+def axial_round(rel_q,rel_r,rel_s):
+    q = np.round(rel_q).astype(int)
+    r = np.round(rel_r).astype(int)
+    s = np.round(rel_s).astype(int)
+    
+    q_diff,r_diff,s_diff = np.abs(q-rel_q),np.abs(r-rel_r), np.abs(s-rel_s)
+    
+    q_idxs = np.where(np.logical_and(q_diff > r_diff, q_diff > s_diff))[0]
+    r_idxs = np.setdiff1d(np.where(r_diff > s_diff)[0], q_idxs)
+    s_idxs = np.setdiff1d(np.array(list(range(len(q)))), np.union1d(q_idxs, r_idxs))
+    
+    q[q_idxs] = -r[q_idxs]-s[q_idxs]
+    r[r_idxs] = -q[r_idxs]-s[r_idxs]
+    s[s_idxs] = -q[s_idxs]-r[s_idxs]
+        
+    return np.array(list(zip(q,r,s)))
+
+class Tower_List:
+    def __init__(self, towers:None):
+        self.tower_list = []
+        self.tower_idxs = []
+        
+        if towers:
+            self.add_towers(towers)
+    
+    def add_towers(self, towers):
+        for tower in towers:
+            self.tower_list.append(tower)
+            self.tower_idxs.append(np.asarray(tower.cube_coords))
+            
+    def update_towers(self, aircraft):
+        
+        rel_q = ((2./3)* (aircraft.positions[:,0]-self.tower_list[0].offset[0]))/self.tower_list[0].size
+        rel_r = (((-1./3)*(aircraft.positions[:,0]-self.tower_list[0].offset[0]))+((np.sqrt(3)/3)*(aircraft.positions[:,1]-self.tower_list[0].offset[1])))/self.tower_list[0].size
+        rel_s = -rel_q-rel_r
+        
+        # print(rel_q,rel_r,rel_s)
+        coords = axial_round(rel_q,rel_r,rel_s)
+
+        # towers_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.tower_idxs, axis=2))[1]
+        # unique = np.unique(towers_assignments)
+        
+        # for t in unique:
+        #     drones = np.argwhere(towers_assignments==t).reshape(-1)
+        #     self.tower_list[t].drones = drones
+        
+        # empty = np.setdiff1d(list(range(len(self.tower_idxs))), unique)
+        # for t in empty:
+        #     self.tower_list[t].drones = []
+        
+        
+        # Find tower assignments for each coordinate
+        tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.tower_idxs, axis=2))[1]
+
+        # Get unique tower assignments
+        unique_towers = np.unique(tower_assignments)
+
+        # Assign drones to unique towers
+        for t in unique_towers:
+            drones = np.where(tower_assignments == t)[0]
+            self.tower_list[t].drones = np.empty(len(drones), dtype=int)
+            self.tower_list[t].drones[:] = drones
+
+        # Find empty towers
+        empty_towers = np.setdiff1d(np.arange(len(self.tower_idxs)), unique_towers)
+
+        # Assign empty drones to empty towers
+        for t in empty_towers:
+            self.tower_list[t].drones = []
+            
+            
+    def __iter__(self):
+        return iter(self.tower_list)
+
 class Tower:
     """The Tower describes a single cell tower and its coverage and bandwith along with a list of drones connected to it.
     These Towers are represented as hexagons and are tiled around some centre tile.
     """
-    def __init__(self, q:float, r:float, size:float, offset:(float,float), max_bandwith:int=5):
+    def __init__(self, q:float, r:float, size:float, offset:(float,float), max_bandwith:int=5, active:bool=True):
         """Initilises a cell tower.
 
         Args:
@@ -24,7 +99,8 @@ class Tower:
             r (float): the r coordinate of the cell tower.
             size (float): The radius of the circle enclosing the cell tower.
             offset (float,float): The coordinates of the cluster centre this tower belongs to.
-            max_bandwith (int, optional): Maximum number of connected drones.. Defaults to 5.
+            max_bandwith (int, optional): Maximum number of connected drones. Defaults to 5.
+            active (bool, optional): The status of if the tower is active. Defaults to True.
         """
         self.cube_coords = self.q,self.r,self.s = (q,r,-q-r)
         self.offset = offset
@@ -38,6 +114,9 @@ class Tower:
         self.drones = set()
         
         self.poly = Polygon(self.coords)
+        
+        self.has_hub = False
+        self.active=active
     
     @property
     def colour(self) -> hex:
@@ -100,12 +179,10 @@ class Tower:
         Args:
             drone (Drone): The drone to try and remove,.
         """
-        try:
+        with contextlib.suppress(Exception):
             self.drones.remove(drone)
-        except Exception:
-            print('Drone not found in tower, skipping drop.')
     
-    def add(self, drone:object):
+    def add(self, drone:int):
         """Add drone to the tower influence.
 
         Args:
@@ -124,14 +201,17 @@ class Tower:
         """
         return self.poly.contains(point)
     
-    def update_bandwith(self, thresh:float = 0.6):
+    def update_bandwith(self, thresh:float = 0.7):
         """Set the towers base bandwith usage, this can change over time.
 
         Args:
             thresh (float, optional): The threshold to change the value. Defaults to 0.8.
         """
         if np.random.rand() > thresh:
-            self.base_usage = np.clip(np.random.normal(0.3,0.2),0,1)
+            if self.has_hub:
+                self.base_usage = np.clip(np.random.normal(0.1,0.1),0,1)
+            else:
+                self.base_usage = np.clip(np.random.normal(0.2,0.25),0,1)
             
         
         
