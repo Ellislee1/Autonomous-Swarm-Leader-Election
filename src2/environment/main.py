@@ -18,7 +18,7 @@ class State:
         
         self.state_log = []
         
-        for _ in range(3):
+        for _ in range(50):
             self.aircraft.add_ac(self.bounds)
             
         self.log()
@@ -55,9 +55,13 @@ class Environment:
     def state(self):
         return self.__state.aircraft
     
-    def gen_towers(self, rings=2, size=200,max_signal=[10]):
+    def gen_towers(self, rings=3, size=150,max_signal=[10]):
         towers = ring_to(self.grid_centre, rings, size, max_signal)
-        
+
+        # for tower in towers:
+        #     if np.random.rand() <= 0.3:
+        #         tower.active = not tower.active
+
         return Tower_List(towers)
         
     def run(self, ts=0.1):
@@ -69,6 +73,9 @@ class Environment:
             self.towers.update_towers(self.__state.aircraft)
             
             time.sleep(ts)
+            
+            if not any(ac[-1] for ac in self.state):
+                self.running = False
          
     
     def stop(self):

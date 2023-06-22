@@ -32,6 +32,9 @@ class UI:
                 if event.type == pygame.QUIT:
                     self.running = False
             
+            if not self.env.running:
+                self.running = False
+            
             self.draw_screen()
             FramePerSec.tick(self.fps)
     
@@ -57,19 +60,24 @@ class UI:
     def draw_aircraft(self):
         for ac in self.env.state:
             points = []
+            rad = self.ac_r if ac[-1] else self.ac_r/2
             
             for i in range(0,360,360//3):
                 theta = np.deg2rad((i+ac[4])%360)
-                points.append([ac[0]+(self.ac_r*np.cos(theta)), ac[1]+(self.ac_r*np.sin(theta))])
+        
+                points.append([ac[0]+(rad*np.cos(theta)), ac[1]+(rad*np.sin(theta))])
             
-            mid = [(points[1][0]+points[2][0])/2,(points[1][1]+points[2][1])/2]
+            if ac[-1]:
+                mid = [(points[1][0]+points[2][0])/2,(points[1][1]+points[2][1])/2]
             
-            points.insert(2, [(mid[0]+points[0][0])/2,(mid[1]+points[0][1])/2])
+                points.insert(2, [(mid[0]+points[0][0])/2,(mid[1]+points[0][1])/2])
             
             pygame.draw.polygon(self.screen, (0,0,0), points)
     
     def draw_towers(self):
         for tower in self.env.towers:
+            if not tower.active:
+                continue
             pygame.draw.polygon(self.screen, tower.colour, tower.coords)
             pygame.draw.polygon(self.screen, (50,50,50), tower.coords, width=3)
             img = self.default_font.render(f'{round(tower.bandwith_as_percent,2)}', True, (0,0,0))

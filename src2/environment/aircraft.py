@@ -65,11 +65,13 @@ class Aircraft:
         self.headings[active_idxs] = np.rad2deg(np.arctan2(self.velocities[[active_idxs],1], self.velocities[[active_idxs],0]))
     
         self.velocities[active_idxs] = np.clip(self.velocities[active_idxs] + (self.accelarations[active_idxs]*ts), -self.max_vel, self.max_vel)
+        self.velocities[inactive_idxs,:] = np.array([0.,0.])
+        self.accelarations[inactive_idxs,:] = np.array([0.,0.])
         
         self.updates += 1
 
         if self.updates % 10 == 0:
-            idxs = np.where(np.random.rand(len(active_idxs)) > 0.5)[0]
+            idxs = np.where(np.random.rand(len(active_idxs)) > 0.4)[0]
             accel_changes = np.random.uniform(-self.max_accel, self.max_accel, size = (idxs.shape[0],2))
             
             self.accelarations[active_idxs[idxs]] = np.clip(self.accelarations[active_idxs[idxs]]+accel_changes, -self.max_accel, self.max_accel)
@@ -78,14 +80,14 @@ class Aircraft:
     
     def validate_ac(self, bounds, active_idxs):
         for i in range(2):
-            result = active_idxs[np.where(self.positions[:, i] <= 0)[0]]
+            result = active_idxs[np.where(self.positions[active_idxs, i] <= 0)[0]]
 
             if len(result) > 0:
                 self.positions[result,i] = 0
                 self.velocities[result,i] *= -0.1
                 self.accelarations[result,i] = 0
 
-            result = active_idxs[np.where(self.positions[:, i] >= bounds[i])[0]]
+            result = active_idxs[np.where(self.positions[active_idxs, i] >= bounds[i])[0]]
 
             if len(result) > 0:
                 self.positions[result,i] = bounds[i]
@@ -96,6 +98,6 @@ class Aircraft:
         return self._iterate_aircraft()
 
     def _iterate_aircraft(self):
-        for position, velocity, heading, accel in zip(self.positions, self.velocities, self.headings, self.accelarations):
-            yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1]]
+        for position, velocity, heading, accel, active in zip(self.positions, self.velocities, self.headings, self.accelarations,self.active):
+            yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1], active]
         

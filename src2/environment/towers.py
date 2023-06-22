@@ -13,9 +13,27 @@ DIRECTION_VECTORS = {}
 C2='#ddfaac'
 C1 = "#FF0000"
 
+def axial_round(rel_q,rel_r,rel_s):
+    q = np.round(rel_q).astype(int)
+    r = np.round(rel_r).astype(int)
+    s = np.round(rel_s).astype(int)
+    
+    q_diff,r_diff,s_diff = np.abs(q-rel_q),np.abs(r-rel_r), np.abs(s-rel_s)
+    
+    q_idxs = np.where(np.logical_and(q_diff > r_diff, q_diff > s_diff))[0]
+    r_idxs = np.setdiff1d(np.where(r_diff > s_diff)[0], q_idxs)
+    s_idxs = np.setdiff1d(np.array(list(range(len(q)))), np.union1d(q_idxs, r_idxs))
+    
+    q[q_idxs] = -r[q_idxs]-s[q_idxs]
+    r[r_idxs] = -q[r_idxs]-s[r_idxs]
+    s[s_idxs] = -q[s_idxs]-r[s_idxs]
+        
+    return np.array(list(zip(q,r,s)))
+
 class Tower_List:
     def __init__(self, towers:None):
         self.tower_list = []
+        self.tower_idxs = []
         
         if towers:
             self.add_towers(towers)
@@ -23,16 +41,48 @@ class Tower_List:
     def add_towers(self, towers):
         for tower in towers:
             self.tower_list.append(tower)
+            self.tower_idxs.append(np.asarray(tower.cube_coords))
             
     def update_towers(self, aircraft):
-        for i, pos in enumerate(aircraft.positions):
-            point = Point(pos) 
+        
+        rel_q = ((2./3)* (aircraft.positions[:,0]-self.tower_list[0].offset[0]))/self.tower_list[0].size
+        rel_r = (((-1./3)*(aircraft.positions[:,0]-self.tower_list[0].offset[0]))+((np.sqrt(3)/3)*(aircraft.positions[:,1]-self.tower_list[0].offset[1])))/self.tower_list[0].size
+        rel_s = -rel_q-rel_r
+        
+        # print(rel_q,rel_r,rel_s)
+        coords = axial_round(rel_q,rel_r,rel_s)
+
+        # towers_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.tower_idxs, axis=2))[1]
+        # unique = np.unique(towers_assignments)
+        
+        # for t in unique:
+        #     drones = np.argwhere(towers_assignments==t).reshape(-1)
+        #     self.tower_list[t].drones = drones
+        
+        # empty = np.setdiff1d(list(range(len(self.tower_idxs))), unique)
+        # for t in empty:
+        #     self.tower_list[t].drones = []
+        
+        
+        # Find tower assignments for each coordinate
+        tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.tower_idxs, axis=2))[1]
+
+        # Get unique tower assignments
+        unique_towers = np.unique(tower_assignments)
+
+        # Assign drones to unique towers
+        for t in unique_towers:
+            drones = np.where(tower_assignments == t)[0]
+            self.tower_list[t].drones = np.empty(len(drones), dtype=int)
+            self.tower_list[t].drones[:] = drones
+
+        # Find empty towers
+        empty_towers = np.setdiff1d(np.arange(len(self.tower_idxs)), unique_towers)
+
+        # Assign empty drones to empty towers
+        for t in empty_towers:
+            self.tower_list[t].drones = []
             
-            for tower in self.tower_list:
-                if tower.includes(point):
-                    tower.add(i)
-                else:
-                    tower.drop(i)
             
     def __iter__(self):
         return iter(self.tower_list)
