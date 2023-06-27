@@ -10,6 +10,7 @@ class UI:
         self.screen_size = self.width,self.height = screen_size
         self.fps = fps
         self.env = env
+        self.colours = [(0,0,0), (128,128,128),(96, 139, 209),(2, 64, 247),(0,200,0)]
         
         self.ac_r = 10
         
@@ -60,19 +61,27 @@ class UI:
     def draw_aircraft(self):
         for ac in self.env.state:
             points = []
+            outline = []
             rad = self.ac_r if ac[-1] else self.ac_r/2
-            
+            outline_rad = rad + 3
+
+            colour_idx = min(int((len(self.colours)-1)*(1-ac[7]/ac[8]))+1, len(self.colours)-1) if ac[7] <= ac[8] else 0
+
             for i in range(0,360,360//3):
                 theta = np.deg2rad((i+ac[4])%360)
-        
+
                 points.append([ac[0]+(rad*np.cos(theta)), ac[1]+(rad*np.sin(theta))])
-            
+                outline.append([ac[0]+(outline_rad*np.cos(theta)), ac[1]+(outline_rad*np.sin(theta))])
+
             if ac[-1]:
                 mid = [(points[1][0]+points[2][0])/2,(points[1][1]+points[2][1])/2]
-            
+                outline_mid = [(outline[1][0]+outline[2][0])/2,(outline[1][1]+outline[2][1])/2]
+
                 points.insert(2, [(mid[0]+points[0][0])/2,(mid[1]+points[0][1])/2])
-            
-            pygame.draw.polygon(self.screen, (0,0,0), points)
+                outline.insert(2, [(outline_mid[0]+outline[0][0])/2,(outline_mid[1]+outline[0][1])/2])
+
+                pygame.draw.polygon(self.screen, (0,0,0), outline)
+            pygame.draw.polygon(self.screen, self.colours[colour_idx], points)
     
     def draw_towers(self):
         for tower in self.env.towers:

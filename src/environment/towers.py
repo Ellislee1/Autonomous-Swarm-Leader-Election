@@ -9,11 +9,13 @@ from src.functions import gen_gradients
 
 # from src.drone import Drone
 
-DIRECTION_VECTORS = {}
-C2='#ddfaac'
-C1 = "#FF0000"
+DIRECTION_VECTORS = {} # Place holder varable 
+C2='#ddfaac' # Colour 2
+C1 = "#FF0000" # Colour 1
 
 def axial_round(rel_q,rel_r,rel_s):
+    """This function performs an axis aligned rounding for faster coordinate indexing when updating towers.
+    """
     q = np.round(rel_q).astype(int)
     r = np.round(rel_r).astype(int)
     s = np.round(rel_s).astype(int)
@@ -31,6 +33,8 @@ def axial_round(rel_q,rel_r,rel_s):
     return np.array(list(zip(q,r,s)))
 
 class Tower_List:
+    """This class stores a list of the existing towers
+    """
     def __init__(self, towers:None):
         self.tower_list = []
         self.tower_idxs = []
@@ -44,27 +48,17 @@ class Tower_List:
             self.tower_idxs.append(np.asarray(tower.cube_coords))
             
     def update_towers(self, aircraft):
+        """Update the state of the towers i.e which aircraft belong to which tower.
+        """
         
+        # For each aircraft get the relative cubic-hex coordinates
         rel_q = ((2./3)* (aircraft.positions[:,0]-self.tower_list[0].offset[0]))/self.tower_list[0].size
         rel_r = (((-1./3)*(aircraft.positions[:,0]-self.tower_list[0].offset[0]))+((np.sqrt(3)/3)*(aircraft.positions[:,1]-self.tower_list[0].offset[1])))/self.tower_list[0].size
         rel_s = -rel_q-rel_r
-        
-        # print(rel_q,rel_r,rel_s)
+
         coords = axial_round(rel_q,rel_r,rel_s)
 
-        # towers_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.tower_idxs, axis=2))[1]
-        # unique = np.unique(towers_assignments)
-        
-        # for t in unique:
-        #     drones = np.argwhere(towers_assignments==t).reshape(-1)
-        #     self.tower_list[t].drones = drones
-        
-        # empty = np.setdiff1d(list(range(len(self.tower_idxs))), unique)
-        # for t in empty:
-        #     self.tower_list[t].drones = []
-        
-        
-        # Find tower assignments for each coordinate
+        # Get the tower that matches the relative cubic coordinates
         tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.tower_idxs, axis=2))[1]
 
         # Get unique tower assignments
