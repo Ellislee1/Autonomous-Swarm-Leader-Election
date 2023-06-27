@@ -115,6 +115,6 @@ class Aircraft:
         return self._iterate_aircraft()
 
     def _iterate_aircraft(self):
-        for position, velocity, heading, accel, active in zip(self.positions, self.velocities, self.headings, self.accelarations,self.active):
-            yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1], active]
+        for position, velocity, heading, accel, flight_times, max_flight_times, active in zip(self.positions, self.velocities, self.headings, self.accelarations, self.flight_times, self.max_flight_times, self.active):
+            yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1], flight_times, max_flight_times, active]
         
