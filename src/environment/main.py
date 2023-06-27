@@ -54,7 +54,7 @@ class Environment:
         
         self.__state = State(bounds, sim_t) # Instantiate the state (aircraft)
         
-        self.towers = self.gen_towers() # Generate the towers (generated in a spiral from the centre.)
+        self.towers = self.gen_towers(random_out=5) # Generate the towers (generated in a spiral from the centre.)
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -76,12 +76,10 @@ class Environment:
         """
         towers = ring_to(self.grid_centre, rings, size, max_signal) # Generate towers to
 
-        
         if random_out > 0: # Set N towers to be inactive
-            out_idxs = np.random.choice(range(len(towers)), size = max(random_out, len(towers)))
-            for idx in out_idxs:
-                towers[idx].acitve = False
-        
+            idxs = np.random.choice(range(len(towers)), size = min(random_out, len(towers)), replace=False)
+            for idx in idxs:
+                towers[idx].active = False
         elif random_out == -1: # Set a random number of towers to be inactive.
             rand_vals = np.random.rand(len(towers))
             idxs = np.where(rand_vals <=0.3)[0]
