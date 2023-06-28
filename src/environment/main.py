@@ -5,14 +5,15 @@ from math import atan2
 import numpy as np
 
 from .aircraft import Aircraft
-from .towers import Tower, Tower_List, ring_to
+from .towers import Towers
 
 
 class State:
     """This holds aircraft state information as well as the sim time
     """
-    def __init__(self, bounds:(float,float), sim_t:float = 0.0, N:int = 15):
+    def __init__(self, bounds:(float,float), sim_t:float = 0.0, N:int = 20):
         self.sim_t = sim_t
+        self.ts = 0.1
         
         self.bounds = bounds # Physical bounds for aircraft to operate in
         self.aircraft=Aircraft() # Instansiate the aircraft object
@@ -23,6 +24,10 @@ class State:
             self.aircraft.add_ac(self.bounds)
             
         self.log() # Begin the logging
+        
+    @property
+    def active_ac(self):
+        return self.aircraft.active_ac
         
     def update(self, t_step:float):
         """Update the aircraft states with a timestep of t seconds
@@ -54,39 +59,35 @@ class Environment:
         
         self.__state = State(bounds, sim_t) # Instantiate the state (aircraft)
         
-        self.towers = self.gen_towers(random_out=5) # Generate the towers (generated in a spiral from the centre.)
+        self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
     def sim_time(self):
         return (datetime(1,1,1)+timedelta(milliseconds=self.__state.sim_t)).strftime("%H:%M:%S.%f")[:-4]
     
+    @property
+    def scale(self):
+        return self.state.scale
+    
+    @property
+    def active_ac(self):
+        return self.state.active_ac
+    
     @property # A formatted printout of the state of the aircraft
     def state(self):
         return self.__state.aircraft
     
-    def gen_towers(self, rings=3, size=150,max_signal=[10], random_out:int = 0):
-        """Generate towers in rings
-
-        Args:
-            rings (int, optional): Number of rings to generate. Defaults to 3.
-            size (int, optional): How wide the towers are. Defaults to 150.
-            max_signal (list, optional): Default starting max signal. Defaults to [10].
-            random_out (int, optional): How many towers to initilise as disconnected. 0 is no towers n>0 is the number of towers to drop. -1 is a random number.
-        """
-        towers = ring_to(self.grid_centre, rings, size, max_signal) # Generate towers to
-
-        if random_out > 0: # Set N towers to be inactive
-            idxs = np.random.choice(range(len(towers)), size = min(random_out, len(towers)), replace=False)
-            for idx in idxs:
-                towers[idx].active = False
-        elif random_out == -1: # Set a random number of towers to be inactive.
-            rand_vals = np.random.rand(len(towers))
-            idxs = np.where(rand_vals <=0.3)[0]
-            for idx in idxs:
-                towers[idx].active = False
-
-        return Tower_List(towers)
+    @property
+    def log(self):
+        return self.__state.state_log
+    
+    def gen_towers(self, rings=3, size=175, max_signal=[10], random_out:int = 0):
+       towers = Towers(size)
+       
+       towers.gen_rings(self.grid_centre, rings, max_signal)
+       
+       return towers
         
     def run(self, ts=0.1):
         """The main run loop
@@ -94,6 +95,7 @@ class Environment:
         Args:
             ts (float, optional): The time step in seconds. Defaults to 0.1.
         """
+        self.ts = ts
         self.running = True # Simulation running flag
         
         while self.running: # Run while the flag is active
