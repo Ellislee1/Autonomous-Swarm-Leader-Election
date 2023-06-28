@@ -4,8 +4,9 @@ import numpy as np
 class Aircraft:
     """Thre aircraft class holds information on the state of the aircraft.
     """
-    def __init__(self, max_vel=25, max_accel = 14):
+    def __init__(self, max_vel=25, max_accel = 18, scale = 1):
         # Initilise the values to record
+        self.scale = scale
         self.positions = []
         self.velocities = []
         self.accelarations = []
@@ -15,13 +16,14 @@ class Aircraft:
         self.max_flight_times = []
         
         self.n_ac = 0 # The number of aircraft in the sim
+        self.active_ac = 0 # The active number of aircraft
         
         self.max_vel = max_vel
         self.max_accel = max_accel
         
         self.updates = 0 # Howmany updates have occured
     
-    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(10,30)):
+    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(10,20)):
         """Add an aircraft to the environment with either predefined vars or randomly generated is None.
         """
         
@@ -37,6 +39,7 @@ class Aircraft:
         else:
             self.append_aircraft(pos, vel, accel,max_flight_time)
         self.n_ac+=1
+        self.active_ac += 1
 
     def append_aircraft(self, pos, vel, accel, max_flight_time):
         """This function appends the aircraft to already occupied arrays
@@ -63,7 +66,8 @@ class Aircraft:
     def update(self, ts, bounds):
         """Update the environment
         """
-        self.flight_times += ts # Update how long the aircraft have been in the air for
+
+        self.flight_times += ts*(0.1*np.abs(self.accelarations).max(axis=1)) # Update how long the aircraft have been in the air for
         
         # Get the list of active and inactive aircraft
         inactive_idxs = np.array(list(range(len(self.active))))
@@ -72,9 +76,10 @@ class Aircraft:
         
         # Update the status of inactive aircraft
         self.active[inactive_idxs] = False
+        self.active_ac = len(np.where(self.active)[0])
         
         # Update the positions and headings
-        self.positions[active_idxs] += self.velocities[active_idxs]*ts
+        self.positions[active_idxs] += (self.scale*self.velocities[active_idxs])*ts
         self.headings[active_idxs] = np.rad2deg(np.arctan2(self.velocities[[active_idxs],1], self.velocities[[active_idxs],0]))
 
         # Update the velocity and accel randomly

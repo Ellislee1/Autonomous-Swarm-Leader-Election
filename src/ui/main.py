@@ -52,14 +52,15 @@ class UI:
         
     def draw_sim_info(self):
         pygame.draw.rect(self.screen, (170,170,170), pygame.Rect(0, self.height-30, self.width, self.height-24))
-        
+        info_text = f'Sim Time: {self.env.sim_time}\tActive Aircraft: {self.env.active_ac}'
         
         # Print the current sim time to the screen
-        pygame.display.set_caption(f'Sim Time: {self.env.sim_time}')
-        self.screen.blit(blit_text(self.screen, (0,0,0), f'Sim Time: {self.env.sim_time}', self.default_font),(3,self.height-21))
+        pygame.display.set_caption(info_text)
+        self.screen.blit(blit_text(self.screen, (0,0,0), info_text, self.default_font),(3,self.height-21))
         
     def draw_aircraft(self):
-        for ac in self.env.state:
+        last_n = np.array(self.env.log[-(int(self.env.ts*100/self.env.scale)):])
+        for k, ac in enumerate(self.env.state):
             points = []
             outline = []
             rad = self.ac_r if ac[-1] else self.ac_r/2
@@ -81,13 +82,14 @@ class UI:
                 outline.insert(2, [(outline_mid[0]+outline[0][0])/2,(outline_mid[1]+outline[0][1])/2])
 
                 pygame.draw.polygon(self.screen, (0,0,0), outline)
+                
+                pygame.draw.lines(self.screen, (255, 0, 255), False, last_n[:,k,:2], width=2)
             pygame.draw.polygon(self.screen, self.colours[colour_idx], points)
     
     def draw_towers(self):
-        for tower in self.env.towers:
-            if not tower.active:
-                continue
-            pygame.draw.polygon(self.screen, tower.colour, tower.coords)
-            pygame.draw.polygon(self.screen, (50,50,50), tower.coords, width=3)
-            img = self.default_font.render(f'{round(tower.bandwith_as_percent,2)}', True, (0,0,0))
-            self.screen.blit(img, tower.centre)
+        
+        for idx in self.env.towers.active_idxs[0]:
+            pygame.draw.polygon(self.screen, self.env.towers.get_gradient(idx), self.env.towers[idx][6])
+            pygame.draw.polygon(self.screen, (50,50,50), self.env.towers[idx][6], width=3)
+            img = self.default_font.render(f'{round(self.env.towers.bandwith_as_percent(idx),2)}', True, (0,0,0))
+            self.screen.blit(img, self.env.towers.get_centre(idx))
