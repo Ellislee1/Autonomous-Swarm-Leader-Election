@@ -6,6 +6,7 @@ import numpy as np
 
 from .aircraft import Aircraft
 from .towers import Towers
+from LeaderElectionAlgorithms import Gateway_Heirarchy
 
 
 class State:
@@ -60,6 +61,7 @@ class Environment:
         self.__state = State(bounds, sim_t) # Instantiate the state (aircraft)
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
+        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -102,6 +104,7 @@ class Environment:
             
             self.__state.update(ts) # Update the aircraft environment
             self.towers.update_towers(self.__state.aircraft) # Update the tower environment
+            self.leader_election.update(self.__state.aircraft, self.towers)
             
             time.sleep(ts if ts <=1 else 0.01) # Force a sleep pause
             

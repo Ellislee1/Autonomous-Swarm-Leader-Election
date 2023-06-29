@@ -25,7 +25,7 @@ fig,axes = plt.subplots(3)
 axes[0].plot(log[:,:,0]/env.scale, log[:,:,1]/env.scale)
 axes[0].set_xlim(0,SCREEN_SIZE[0]/env.scale)
 axes[0].set_ylim(SCREEN_SIZE[1]/env.scale,0)
-axes[0].set_title('Positions (Scale={env.scale})')
+axes[0].set_title(f'Positions (Scale={env.scale})')
 
 time_series = np.arange(0,log.shape[0],1)/10
 

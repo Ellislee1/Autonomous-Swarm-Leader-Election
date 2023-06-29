@@ -1,3 +1,4 @@
+import contextlib
 import pygame
 import numpy as np
 
@@ -52,7 +53,7 @@ class UI:
         
     def draw_sim_info(self):
         pygame.draw.rect(self.screen, (170,170,170), pygame.Rect(0, self.height-30, self.width, self.height-24))
-        info_text = f'Sim Time: {self.env.sim_time}\tActive Aircraft: {self.env.active_ac}'
+        info_text = f'Sim Time: {self.env.sim_time}\tActive Aircraft: {self.env.active_ac}/{len(self.env.state.positions)}'
         
         # Print the current sim time to the screen
         pygame.display.set_caption(info_text)
@@ -64,7 +65,17 @@ class UI:
             points = []
             outline = []
             rad = self.ac_r if ac[-1] else self.ac_r/2
-            outline_rad = rad + 3
+            
+            if k in self.env.leader_election.are_leaders:
+                outline_rad = rad + 5
+                colour = (255,0,0)
+            elif k in self.env.leader_election.are_2IC:
+                outline_rad = rad + 5
+                colour = (255, 255, 255)
+            else:
+            
+                outline_rad = rad + 3
+                colour = (0,0,0)
 
             colour_idx = min(int((len(self.colours)-1)*(1-ac[7]/ac[8]))+1, len(self.colours)-1) if ac[7] <= ac[8] else 0
 
@@ -81,9 +92,10 @@ class UI:
                 points.insert(2, [(mid[0]+points[0][0])/2,(mid[1]+points[0][1])/2])
                 outline.insert(2, [(outline_mid[0]+outline[0][0])/2,(outline_mid[1]+outline[0][1])/2])
 
-                pygame.draw.polygon(self.screen, (0,0,0), outline)
-                
-                pygame.draw.lines(self.screen, (255, 0, 255), False, last_n[:,k,:2], width=2)
+                pygame.draw.polygon(self.screen, colour, outline)
+
+                with contextlib.suppress(Exception):
+                    pygame.draw.lines(self.screen, (255, 0, 255), False, last_n[:,k,:2], width=2)
             pygame.draw.polygon(self.screen, self.colours[colour_idx], points)
     
     def draw_towers(self):
