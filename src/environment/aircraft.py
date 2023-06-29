@@ -23,7 +23,7 @@ class Aircraft:
         
         self.updates = 0 # Howmany updates have occured
     
-    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(10,20)):
+    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(60,61)):
         """Add an aircraft to the environment with either predefined vars or randomly generated is None.
         """
         
@@ -62,6 +62,7 @@ class Aircraft:
         self.active = np.array([True])
         self.flight_times = np.array([0.])
         self.max_flight_times = np.array([max_flight_time])
+        
         
     def update(self, ts, bounds):
         """Update the environment

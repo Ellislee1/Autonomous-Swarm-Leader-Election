@@ -30,13 +30,13 @@ class Towers:
         
         coords = axial_round(relative_qs,relative_rs,relative_ss)
         
-        tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.cube_coords, axis=2))[1]
+        ac,tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.cube_coords, axis=2))
         
         unique_towers = np.unique(tower_assignments)
         
         # Assign drones to unique towers
         for t in unique_towers:
-            new_aircraft_list[t] = np.where(tower_assignments == t)[0]
+            new_aircraft_list[t] = ac[np.where(tower_assignments == t)[0]]
         
         self.aircraft_list = new_aircraft_list
         

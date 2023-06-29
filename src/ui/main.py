@@ -93,6 +93,9 @@ class UI:
                 outline.insert(2, [(outline_mid[0]+outline[0][0])/2,(outline_mid[1]+outline[0][1])/2])
 
                 pygame.draw.polygon(self.screen, colour, outline)
+                
+                img = self.default_font.render(f'{k}', True, (0,0,0))
+                self.screen.blit(img, ac[:2])
 
                 with contextlib.suppress(Exception):
                     pygame.draw.lines(self.screen, (255, 0, 255), False, last_n[:,k,:2], width=2)
@@ -103,5 +106,5 @@ class UI:
         for idx in self.env.towers.active_idxs[0]:
             pygame.draw.polygon(self.screen, self.env.towers.get_gradient(idx), self.env.towers[idx][6])
             pygame.draw.polygon(self.screen, (50,50,50), self.env.towers[idx][6], width=3)
-            img = self.default_font.render(f'{round(self.env.towers.bandwith_as_percent(idx),2)}', True, (0,0,0))
+            img = self.default_font.render(f'{idx},{round(self.env.towers.bandwith_as_percent(idx),2)}', True, (0,0,0))
             self.screen.blit(img, self.env.towers.get_centre(idx))
