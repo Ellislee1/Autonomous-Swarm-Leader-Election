@@ -9,7 +9,7 @@ class Aircraft:
         self.scale = scale
         self.positions = []
         self.velocities = []
-        self.accelarations = []
+        self.accelerations = []
         self.headings = []
         self.active = []
         self.flight_times = []
@@ -46,7 +46,7 @@ class Aircraft:
         """
         self.positions = np.append(self.positions, [pos], axis=0)
         self.velocities = np.append(self.velocities, [vel], axis=0)
-        self.accelarations = np.append(self.accelarations,[accel],axis=0)
+        self.accelerations = np.append(self.accelerations,[accel],axis=0)
         self.headings = np.append(self.headings, [np.rad2deg(np.arctan2(vel[1], vel[0]))])
         self.active = np.append(self.active, [True])
         self.flight_times = np.append(self.flight_times, [0.])
@@ -57,7 +57,7 @@ class Aircraft:
         """
         self.positions = np.array([pos])
         self.velocities = np.array([vel])
-        self.accelarations = np.array([accel])
+        self.accelerations = np.array([accel])
         self.headings = np.array([np.deg2rad(np.arctan2(vel[1], vel[0]))])
         self.active = np.array([True])
         self.flight_times = np.array([0.])
@@ -68,7 +68,7 @@ class Aircraft:
         """Update the environment
         """
 
-        self.flight_times += ts*(0.1*np.abs(self.accelarations).max(axis=1)) # Update how long the aircraft have been in the air for
+        self.flight_times += ts*(0.1*np.abs(self.accelerations).max(axis=1)) # Update how long the aircraft have been in the air for
         
         # Get the list of active and inactive aircraft
         inactive_idxs = np.array(list(range(len(self.active))))
@@ -84,9 +84,9 @@ class Aircraft:
         self.headings[active_idxs] = np.rad2deg(np.arctan2(self.velocities[[active_idxs],1], self.velocities[[active_idxs],0]))
 
         # Update the velocity and accel randomly
-        self.velocities[active_idxs] = np.clip(self.velocities[active_idxs] + (self.accelarations[active_idxs]*ts), -self.max_vel, self.max_vel)
+        self.velocities[active_idxs] = np.clip(self.velocities[active_idxs] + (self.accelerations[active_idxs]*ts), -self.max_vel, self.max_vel)
         self.velocities[inactive_idxs,:] = np.array([0.,0.])
-        self.accelarations[inactive_idxs,:] = np.array([0.,0.])
+        self.accelerations[inactive_idxs,:] = np.array([0.,0.])
         
         self.updates += 1
 
@@ -95,7 +95,7 @@ class Aircraft:
             idxs = np.where(np.random.rand(len(active_idxs)) > 0.4)[0]
             accel_changes = np.random.uniform(-self.max_accel, self.max_accel, size = (idxs.shape[0],2))
             
-            self.accelarations[active_idxs[idxs]] = np.clip(self.accelarations[active_idxs[idxs]]+accel_changes, -self.max_accel, self.max_accel)
+            self.accelerations[active_idxs[idxs]] = np.clip(self.accelerations[active_idxs[idxs]]+accel_changes, -self.max_accel, self.max_accel)
         
         self.validate_ac(bounds, active_idxs) # Make sure aircraft dont leave the environment
     
@@ -108,19 +108,21 @@ class Aircraft:
             if len(result) > 0:
                 self.positions[result,i] = 0
                 self.velocities[result,i] *= -0.1
-                self.accelarations[result,i] = 0
+                self.accelerations[result,i] = 0
 
             result = active_idxs[np.where(self.positions[active_idxs, i] >= bounds[i])[0]]
 
             if len(result) > 0:
                 self.positions[result,i] = bounds[i]
                 self.velocities[result,i] *= -0.1
-                self.accelarations[result,i] = 0
+                self.accelerations[result,i] = 0
                 
     def __iter__(self):
         return self._iterate_aircraft()
 
     def _iterate_aircraft(self):
-        for position, velocity, heading, accel, flight_times, max_flight_times, active in zip(self.positions, self.velocities, self.headings, self.accelarations, self.flight_times, self.max_flight_times, self.active):
+        for position, velocity, heading, accel, flight_times, max_flight_times, active in zip(self.positions, self.velocities, self.headings, self.accelerations, self.flight_times, self.max_flight_times, self.active):
             yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1], flight_times, max_flight_times, active]
         
+
+

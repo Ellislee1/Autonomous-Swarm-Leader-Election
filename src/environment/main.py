@@ -6,15 +6,16 @@ import numpy as np
 
 from .aircraft import Aircraft
 from .towers import Towers
+from src.logging import Logger
 from LeaderElectionAlgorithms import Gateway_Heirarchy
 
 
 class State:
     """This holds aircraft state information as well as the sim time
     """
-    def __init__(self, bounds:(float,float), sim_t:float = 0.0, N:int = 20):
+    def __init__(self, bounds:(float,float), sim_t:float = 0.0, N:int = 30):
         self.sim_t = sim_t
-        self.ts = 0.1
+        self.ts = 0.01
         
         self.bounds = bounds # Physical bounds for aircraft to operate in
         self.aircraft=Aircraft() # Instansiate the aircraft object
@@ -62,6 +63,8 @@ class Environment:
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
+        self.start_time = 0
+        self.logger = Logger()
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -84,14 +87,14 @@ class Environment:
     def log(self):
         return self.__state.state_log
     
-    def gen_towers(self, rings=3, size=175, max_signal=[10], random_out:int = 0):
+    def gen_towers(self, rings=3, size=200, max_signal=[10], random_out:int = -1):
        towers = Towers(size)
        
        towers.gen_rings(self.grid_centre, rings, max_signal)
        
        return towers
         
-    def run(self, ts=0.1):
+    def run(self, ts=0.01):
         """The main run loop
 
         Args:
@@ -99,14 +102,25 @@ class Environment:
         """
         self.ts = ts
         self.running = True # Simulation running flag
+        self.start_time = time.perf_counter()
+        update_counter = 0
         
         while self.running: # Run while the flag is active
+            s = time.perf_counter()
             
-            self.__state.update(ts) # Update the aircraft environment
-            self.towers.update_towers(self.__state.aircraft) # Update the tower environment
-            self.leader_election.update(self.__state.aircraft, self.towers)
+            if update_counter % 16 == 0:
+                self.__state.update(ts) # Update the aircraft environment
+                self.towers.update_towers(self.__state.aircraft) # Update the tower environment
+                self.leader_election.update(self.__state.aircraft, self.towers, self.ts)
+                
+                self.logger.log_towers(self.towers)
+            else:
+                
+                # time.sleep(max(self.ts-(time.perf_counter()-s),0))
+                # time.sleep(0.001) # Force a sleep pause
+                pass
             
-            time.sleep(ts if ts <=1 else 0.01) # Force a sleep pause
+            update_counter += 1
             
             if not any(ac[-1] for ac in self.state):
                 self.running = False # Exit the simulation when no aircraft are active

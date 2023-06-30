@@ -1,6 +1,8 @@
 import contextlib
 import pygame
 import numpy as np
+import time
+from datetime import datetime, timedelta
 
 from .text_tools import blit_text
 
@@ -53,20 +55,23 @@ class UI:
         
     def draw_sim_info(self):
         pygame.draw.rect(self.screen, (170,170,170), pygame.Rect(0, self.height-30, self.width, self.height-24))
-        info_text = f'Sim Time: {self.env.sim_time}\tActive Aircraft: {self.env.active_ac}/{len(self.env.state.positions)}'
+        time_passed = (time.perf_counter() - self.env.start_time) * 1000
+        wall_time = (datetime(1,1,1)+timedelta(milliseconds=time_passed)).strftime("%H:%M:%S.%f")[:-4]
+        info_text = f'Sim Time: {self.env.sim_time} (Wall Time: {wall_time})\tActive Aircraft: {self.env.active_ac}/{len(self.env.state.positions)}'
         
         # Print the current sim time to the screen
         pygame.display.set_caption(info_text)
         self.screen.blit(blit_text(self.screen, (0,0,0), info_text, self.default_font),(3,self.height-21))
         
     def draw_aircraft(self):
-        last_n = np.array(self.env.log[-(int(self.env.ts*100/self.env.scale)):])
+        # last_n = np.array(self.env.log[-(int((1/self.env.ts)/self.env.scale)):])
+        last_n = 100
         for k, ac in enumerate(self.env.state):
             points = []
             outline = []
             rad = self.ac_r if ac[-1] else self.ac_r/2
             
-            if k in self.env.leader_election.are_leaders:
+            if self.env.leader_election.are_leaders is not None and k in self.env.leader_election.are_leaders:
                 outline_rad = rad + 5
                 colour = (255,0,0)
             elif k in self.env.leader_election.are_2IC:

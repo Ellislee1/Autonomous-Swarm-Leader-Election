@@ -27,6 +27,7 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways):
     force_update_accelerations(leaders, aircraft, towers, active_aircraft)
     return leaders
 
+
 def force_update_accelerations(leaders, aircraft, towers,active_aircraft):
     for tower,leader in enumerate(leaders):
         if leader is None:
@@ -43,5 +44,7 @@ def force_update_accelerations(leaders, aircraft, towers,active_aircraft):
         
         vec = np.clip(-(pos-tower_centre),-0.5*aircraft.max_accel, 0.5*aircraft.max_accel)
         
-        aircraft.accelarations[leader] = vec
+        aircraft.accelerations[leader] = vec
+
+
         
