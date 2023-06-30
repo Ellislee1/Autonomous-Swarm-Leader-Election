@@ -21,24 +21,28 @@ class Towers:
         self.n_towers = 0
         
         self.gradients = gen_gradients(C1, C2, 10)
-        
+    
+    @property
+    def state(self):
+        return np.column_stack((self.active, self.aircraft_list, np.array([self.bandwith_as_percent(i) for i in range(len(self.active))])))
+    
     def update_towers(self, aircraft):
-        new_aircraft_list = [[]]*len(self.centres)
-        relative_qs = ((2./3)* (aircraft.positions[:,0]-self.offsets[0][0]))/self.sizes
-        relative_rs = (((-1./3)*(aircraft.positions[:,0]-self.offsets[0][0]))+((np.sqrt(3)/3)*(aircraft.positions[:,1]-self.offsets[0][1])))/self.sizes
-        relative_ss = -relative_qs-relative_rs
-        
-        coords = axial_round(relative_qs,relative_rs,relative_ss)
-        
-        tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.cube_coords, axis=2))[1]
-        
-        unique_towers = np.unique(tower_assignments)
-        
-        # Assign drones to unique towers
-        for t in unique_towers:
-            new_aircraft_list[t] = np.where(tower_assignments == t)[0]
-        
+        relative_qs = ((2. / 3) * (aircraft.positions[:, 0] - self.offsets[0][0])) / self.sizes
+        relative_rs = (((-1. / 3) * (aircraft.positions[:, 0] - self.offsets[0][0])) + ((np.sqrt(3) / 3) * (aircraft.positions[:, 1] - self.offsets[0][1]))) / self.sizes
+        relative_ss = -relative_qs - relative_rs
+
+        coords = axial_round(relative_qs, relative_rs, relative_ss)
+
+        ac, tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.cube_coords, axis=2))
+
+
+        new_aircraft_list = [[] for _ in range(len(self.centres))]
+
+        for ac_idx, tower_idx in zip(ac, tower_assignments):
+            new_aircraft_list[tower_idx].append(ac_idx)
+
         self.aircraft_list = new_aircraft_list
+
         
     @property
     def active_idxs(self):

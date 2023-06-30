@@ -3,7 +3,7 @@ import threading
 import matplotlib.pyplot as plt
 import numpy as np
 
-SCREEN_SIZE = (900,900)
+SCREEN_SIZE = (1200,900)
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2)
 
@@ -17,15 +17,13 @@ ui.run()
 log = env.stop()
 env_thread.join()
 
-print(log.shape)
-
 fig,axes = plt.subplots(3)
 
 # Plot positions
 axes[0].plot(log[:,:,0]/env.scale, log[:,:,1]/env.scale)
 axes[0].set_xlim(0,SCREEN_SIZE[0]/env.scale)
 axes[0].set_ylim(SCREEN_SIZE[1]/env.scale,0)
-axes[0].set_title('Positions (Scale={env.scale})')
+axes[0].set_title(f'Positions (Scale={env.scale})')
 
 time_series = np.arange(0,log.shape[0],1)/10
 
@@ -51,4 +49,12 @@ axes[2].set_title('Remaining Flight Time (s)')
 
 
 
+plt.show()
+
+log = env.logger
+
+tower_states = np.asanyarray(log.tower_states)
+
+lineObjects = plt.plot(tower_states[:,:,2])
+plt.legend(iter(lineObjects), list(range(tower_states.shape[1])))
 plt.show()
