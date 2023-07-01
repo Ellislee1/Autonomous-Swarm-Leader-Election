@@ -15,7 +15,8 @@ env_thread = threading.Thread(target=env.run, daemon=True)
 
 env_thread.start()
 # ui.run()
-pyglet.app.run()
+# pyglet.clock.schedule_interval(lambda dt: ui.flip(), 1)
+pyglet.app.run(1/60)
 
 log = env.stop()
 env_thread.join()
