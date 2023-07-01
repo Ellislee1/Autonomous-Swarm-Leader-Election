@@ -1,18 +1,21 @@
-from src import UI, Environment
+from src import UI, Environment,SimUI
 import threading
 import matplotlib.pyplot as plt
 import numpy as np
+import pyglet
 
 SCREEN_SIZE = (1200,900)
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2)
 
-ui = UI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
+# ui = UI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
+ui = SimUI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
 
 env_thread = threading.Thread(target=env.run, daemon=True)
 
 env_thread.start()
-ui.run()
+# ui.run()
+pyglet.app.run()
 
 log = env.stop()
 env_thread.join()
