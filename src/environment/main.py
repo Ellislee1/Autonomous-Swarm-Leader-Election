@@ -92,6 +92,10 @@ class Environment:
        
        towers.gen_rings(self.grid_centre, rings, max_signal)
        
+       idxs = np.where(np.random.rand(len(towers.active))<0.3)[0]
+       
+       towers.active[idxs] = False
+       
        return towers
         
     def run(self, ts=0.01):

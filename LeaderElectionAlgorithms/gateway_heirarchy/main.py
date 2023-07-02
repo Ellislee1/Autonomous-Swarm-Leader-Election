@@ -1,5 +1,6 @@
 import numpy as np
 from .gateway_election import get_gateway_leaders
+from functools import reduce
 
 class Leader_Election:
     def __init__(self, n_towers, frequency:(int) = 50):
@@ -16,7 +17,20 @@ class Leader_Election:
 
         self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC)
         
+        active_towers = np.where(towers.active)[0]
+        in_towers = np.asanyarray(towers.aircraft_list)[active_towers].reshape(-1).tolist()
+        
+        in_towers = reduce(lambda x,y: x+y, in_towers)
+        
+        active_idxs = np.intersect1d(in_towers, active_idxs)
+
         if self.are_leaders is None or any(
             leader not in active_idxs for leader in self.are_leaders
         ):
-            self.are_leaders = [np.random.choice(active_idxs)]
+            try:
+                ac = aircraft.heuristics[active_idxs]
+                self.are_leaders = [active_idxs[np.argmax(ac)]]
+            except:
+                self.are_leaders = []
+            
+        # print(self.are_leaders)

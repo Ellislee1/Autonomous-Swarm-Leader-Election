@@ -101,7 +101,8 @@ class SimUI(pyglet.window.Window):
 
                 # pygame.draw.polygon(self.screen, colour, outline)
                 outline = pyglet.shapes.Polygon(*outline,color=colour, batch=ac_batch)
-                label = pyglet.text.Label(f'{k}', color = (0,0,0,255),font_size=12, x=ac[0]-(rad), y=ac[1]-(rad), anchor_x='center', anchor_y='center', batch=ac_batch)
+                label = pyglet.text.Label(f'{k}', color = (255,255,255,255),font_size=12, bold=True, x=ac[0]-(rad), y=ac[1]-(rad), anchor_x='center', anchor_y='center', batch=ac_batch)
+                # label = pyglet.text.Label(f'{k}', color = (0,0,0,255),font_size=12, bold=True, x=ac[0]-(rad), y=ac[1]-(rad), anchor_x='center', anchor_y='center', batch=ac_batch)
                 # poly.draw()
                 
                 # img = self.default_font.render(f'{k}', True, (0,0,0))

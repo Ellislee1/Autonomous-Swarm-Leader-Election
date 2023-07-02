@@ -5,24 +5,21 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways):
     leaders = []
     
     for i, tower in enumerate(towers.aircraft_list):
-        if len(tower) == 0:
+        if len(tower) == 0 or not towers.active[i]:
             leaders.append(None)
             continue
         
-        not_active = np.setdiff1d(tower, active_aircraft)
+        valid_candidates = np.intersect1d(tower, active_aircraft)
         
-        if len(not_active) == len(tower):
+        if len(valid_candidates) == 0:
             leaders.append(None)
             continue
-        
-        valid_candidates = np.setdiff1d(tower, not_active)
+
         if previous_gateways[i] in valid_candidates:
             leaders.append(previous_gateways[i])
             continue
-        
-        
-        battery_values = -(aircraft.max_flight_times[valid_candidates]-aircraft.flight_times[valid_candidates])
-        leaders.append(valid_candidates[np.argmin(battery_values)])
+
+        leaders.append(valid_candidates[np.argmax(aircraft.heuristics[valid_candidates])])
     
     force_update_accelerations(leaders, aircraft, towers, active_aircraft)
     return leaders

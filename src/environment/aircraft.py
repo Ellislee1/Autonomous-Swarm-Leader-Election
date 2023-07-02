@@ -14,6 +14,7 @@ class Aircraft:
         self.active = []
         self.flight_times = []
         self.max_flight_times = []
+        self.heuristics = []
         
         self.n_ac = 0 # The number of aircraft in the sim
         self.active_ac = 0 # The active number of aircraft
@@ -23,7 +24,7 @@ class Aircraft:
         
         self.updates = 0 # Howmany updates have occured
     
-    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(60,61)):
+    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(60,120)):
         """Add an aircraft to the environment with either predefined vars or randomly generated is None.
         """
         
@@ -51,6 +52,7 @@ class Aircraft:
         self.active = np.append(self.active, [True])
         self.flight_times = np.append(self.flight_times, [0.])
         self.max_flight_times = np.append(self.max_flight_times, max_flight_time)
+        self.heuristics = np.append(self.heuristics, [0])
 
     def fresh_aircraft(self, pos, vel, accel,max_flight_time):
         """This function instantiates new state storers and then appends an aircraft
@@ -62,13 +64,19 @@ class Aircraft:
         self.active = np.array([True])
         self.flight_times = np.array([0.])
         self.max_flight_times = np.array([max_flight_time])
+        self.heuristics = np.array([0])
         
         
     def update(self, ts, bounds):
         """Update the environment
         """
 
-        self.flight_times += ts*(0.1*np.abs(self.accelerations).max(axis=1)) # Update how long the aircraft have been in the air for
+        val = 1e-4*np.sum(np.abs(self.accelerations), axis=1)
+        
+        self.flight_times += ts+val # Update how long the aircraft have been in the air for
+        
+        # self.flight_times += ts
+        
         
         # Get the list of active and inactive aircraft
         inactive_idxs = np.array(list(range(len(self.active))))
@@ -98,6 +106,8 @@ class Aircraft:
             self.accelerations[active_idxs[idxs]] = np.clip(self.accelerations[active_idxs[idxs]]+accel_changes, -self.max_accel, self.max_accel)
         
         self.validate_ac(bounds, active_idxs) # Make sure aircraft dont leave the environment
+        
+        self.update_heuristics(ts)
     
     def validate_ac(self, bounds, active_idxs):
         """Validate the states of the aircraft
@@ -116,7 +126,11 @@ class Aircraft:
                 self.positions[result,i] = bounds[i]
                 self.velocities[result,i] *= -0.1
                 self.accelerations[result,i] = 0
-                
+    
+    def update_heuristics(self, ts):
+        self.heuristics = np.clip((self.max_flight_times-self.flight_times),0, np.inf)
+
+    
     def __iter__(self):
         return self._iterate_aircraft()
 
