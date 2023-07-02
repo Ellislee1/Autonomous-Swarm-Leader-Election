@@ -104,24 +104,18 @@ class Environment:
         self.running = True # Simulation running flag
         self.start_time = time.perf_counter()
         update_counter = 0
-        
+
         while self.running: # Run while the flag is active
             s = time.perf_counter()
-            
+
             if update_counter % 16 == 0:
                 self.__state.update(ts) # Update the aircraft environment
                 self.towers.update_towers(self.__state.aircraft) # Update the tower environment
                 self.leader_election.update(self.__state.aircraft, self.towers, self.ts)
-                
+
                 self.logger.log_towers(self.towers)
-            else:
-                
-                # time.sleep(max(self.ts-(time.perf_counter()-s),0))
-                # time.sleep(0.001) # Force a sleep pause
-                pass
-            
             update_counter += 1
-            
+
             if not any(ac[-1] for ac in self.state):
                 self.running = False # Exit the simulation when no aircraft are active
          

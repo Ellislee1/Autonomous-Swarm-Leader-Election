@@ -1,5 +1,31 @@
 import pyglet
 import numpy as np
+import time
+from datetime import datetime, timedelta
+
+class InfoUI(pyglet.window.Window):
+    def __init__(self,screen_size:(int,int), env):
+        super().__init__(*screen_size, resizable=True)
+        self.env = env
+        self.screen_size = self.width,self.height = screen_size
+        
+        
+    def on_draw(self):
+        self.clear()
+        self.draw_env_info()
+    
+    def draw_env_info(self):
+        batch = pyglet.graphics.Batch()
+        sim_time = pyglet.text.Label(f'Sim Time: {self.env.sim_time}', color = (255,255,255,255),font_size=14, x=10, y=self.height-14, anchor_x='left', anchor_y='center', batch=batch)
+        
+        time_passed = (time.perf_counter() - self.env.start_time) * 1000
+        wall_time = (datetime(1,1,1)+timedelta(milliseconds=time_passed)).strftime("%H:%M:%S.%f")[:-4]
+        wall_time_label = pyglet.text.Label(f'Wall Time: {wall_time}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*2)-5, anchor_x='left', anchor_y='center', batch=batch)
+        
+        active_ac = pyglet.text.Label(f'Active Aircraft: {self.env.active_ac}/{len(self.env.state.positions)}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*3)-(5*2), anchor_x='left', anchor_y='center', batch=batch)
+        
+        batch.draw()
+        
 
 class SimUI(pyglet.window.Window):
     def __init__(self, env:object, screen_size:(int,int), fps:int = 60):
@@ -65,7 +91,7 @@ class SimUI(pyglet.window.Window):
 
                 points.append([ac[0]+(rad*np.cos(theta)), ac[1]+(rad*np.sin(theta))])
                 outline.append([ac[0]+(outline_rad*np.cos(theta)), ac[1]+(outline_rad*np.sin(theta))])
-                
+            label = None
             if ac[-1]:
                 mid = [(points[1][0]+points[2][0])/2,(points[1][1]+points[2][1])/2]
                 outline_mid = [(outline[1][0]+outline[2][0])/2,(outline[1][1]+outline[2][1])/2]
@@ -75,6 +101,7 @@ class SimUI(pyglet.window.Window):
 
                 # pygame.draw.polygon(self.screen, colour, outline)
                 outline = pyglet.shapes.Polygon(*outline,color=colour, batch=ac_batch)
+                label = pyglet.text.Label(f'{k}', color = (0,0,0,255),font_size=12, x=ac[0]-(rad), y=ac[1]-(rad), anchor_x='center', anchor_y='center', batch=ac_batch)
                 # poly.draw()
                 
                 # img = self.default_font.render(f'{k}', True, (0,0,0))
@@ -85,7 +112,7 @@ class SimUI(pyglet.window.Window):
             # pygame.draw.polygon(self.screen, self.colours[colour_idx], points)
             ac = pyglet.shapes.Polygon(*points,color=self.colours[colour_idx], batch=ac_batch)
             
-            ac_elems.append((outline,ac))
+            ac_elems.append((outline,ac, label))
             
         ac_batch.draw()
             
