@@ -1,5 +1,6 @@
 import numpy as np
 from .gateway_election import get_gateway_leaders
+from .leader_election import leader_election
 from functools import reduce
 
 class Leader_Election:
@@ -10,6 +11,8 @@ class Leader_Election:
         self.frequency = frequency
     
     def update(self, aircraft, towers, update_interval):
+        leader_election(aircraft)
+        
         active_idxs = np.where(aircraft.active)[0]
         if len(active_idxs) == 0:
             return
