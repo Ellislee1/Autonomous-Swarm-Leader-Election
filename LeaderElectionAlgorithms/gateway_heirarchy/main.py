@@ -21,7 +21,7 @@ class Leader_Election:
         self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC)
         
         active_towers = np.where(towers.active)[0]
-        in_towers = np.asanyarray(towers.aircraft_list)[active_towers].reshape(-1).tolist()
+        in_towers = np.asanyarray(towers.aircraft_list, dtype=object)[active_towers].reshape(-1).tolist()
         
         in_towers = reduce(lambda x,y: x+y, in_towers)
         
