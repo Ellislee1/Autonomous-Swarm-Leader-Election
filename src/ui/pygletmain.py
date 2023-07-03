@@ -107,7 +107,9 @@ class SimUI(pyglet.window.Window):
                 points.append([ac[0]+(rad*np.cos(theta)), ac[1]+(rad*np.sin(theta))])
                 outline.append([ac[0]+(outline_rad*np.cos(theta)), ac[1]+(outline_rad*np.sin(theta))])
             label = None
+            error = None
             if ac[-1]:
+                error = [[ac[0],ac[1]], ac[9].tolist()]
                 mid = [(points[1][0]+points[2][0])/2,(points[1][1]+points[2][1])/2]
                 outline_mid = [(outline[1][0]+outline[2][0])/2,(outline[1][1]+outline[2][1])/2]
 
@@ -116,6 +118,7 @@ class SimUI(pyglet.window.Window):
 
                 # pygame.draw.polygon(self.screen, colour, outline)
                 outline = pyglet.shapes.Polygon(*outline,color=colour, batch=ac_batch)
+                error = pyglet.shapes.Line(*error[0], *error[1], width=2, color=(255,255,255,255), batch=ac_batch)
                 label = pyglet.text.Label(f'{k}', color = (255,255,255,255),font_size=12, bold=True, x=ac[0]-(rad), y=ac[1]-(rad), anchor_x='center', anchor_y='center', batch=ac_batch)
                 # label = pyglet.text.Label(f'{k}', color = (0,0,0,255),font_size=12, bold=True, x=ac[0]-(rad), y=ac[1]-(rad), anchor_x='center', anchor_y='center', batch=ac_batch)
                 # poly.draw()
@@ -128,7 +131,7 @@ class SimUI(pyglet.window.Window):
             # pygame.draw.polygon(self.screen, self.colours[colour_idx], points)
             ac = pyglet.shapes.Polygon(*points,color=self.colours[colour_idx], batch=ac_batch)
             
-            ac_elems.append((outline,ac, label))
+            ac_elems.append((outline,ac, label, error))
             
         ac_batch.draw()
             

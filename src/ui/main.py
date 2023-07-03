@@ -15,7 +15,7 @@ class UI:
         self.env = env
         self.colours = [(0,0,0), (128,128,128),(96, 139, 209),(2, 64, 247),(0,200,0)]
         
-        self.ac_r = 10
+        self.ac_r = 3
         
         self.post_init()
         
@@ -72,14 +72,14 @@ class UI:
             rad = self.ac_r if ac[-1] else self.ac_r/2
             
             if self.env.leader_election.are_leaders is not None and k in self.env.leader_election.are_leaders:
-                outline_rad = rad + 5
+                outline_rad = rad + 3
                 colour = (255,0,0)
             elif k in self.env.leader_election.are_2IC:
-                outline_rad = rad + 5
+                outline_rad = rad + 3
                 colour = (255, 255, 255)
             else:
             
-                outline_rad = rad + 3
+                outline_rad = rad + 2
                 colour = (0,0,0)
 
             colour_idx = min(int((len(self.colours)-1)*(1-ac[7]/ac[8]))+1, len(self.colours)-1) if ac[7] <= ac[8] else 0

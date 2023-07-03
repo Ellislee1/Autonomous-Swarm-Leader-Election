@@ -15,6 +15,7 @@ class Aircraft:
         self.flight_times = []
         self.max_flight_times = []
         self.heuristics = []
+        self.position_error = []
         
         self.n_ac = 0 # The number of aircraft in the sim
         self.active_ac = 0 # The active number of aircraft
@@ -46,6 +47,7 @@ class Aircraft:
         """This function appends the aircraft to already occupied arrays
         """
         self.positions = np.append(self.positions, [pos], axis=0)
+        self.position_error = np.append(self.position_error, [np.random.normal(loc = pos, scale=2.25, size=pos.shape)])
         self.velocities = np.append(self.velocities, [vel], axis=0)
         self.accelerations = np.append(self.accelerations,[accel],axis=0)
         self.headings = np.append(self.headings, [np.rad2deg(np.arctan2(vel[1], vel[0]))])
@@ -58,6 +60,7 @@ class Aircraft:
         """This function instantiates new state storers and then appends an aircraft
         """
         self.positions = np.array([pos])
+        self.position_error = np.array([np.random.normal(loc = pos, scale=2.25, size=pos.shape)])
         self.velocities = np.array([vel])
         self.accelerations = np.array([accel])
         self.headings = np.array([np.deg2rad(np.arctan2(vel[1], vel[0]))])
@@ -72,8 +75,6 @@ class Aircraft:
         """
 
         val = (np.sum(np.abs(self.accelerations), axis=1)/(self.max_accel**2))/10
-        
-        print(np.clip(ts+ 1/(np.sum(np.abs(self.accelerations), axis=1))**2, ts, ts*3))
         
         self.flight_times += np.clip(ts+ 1/(np.sum(np.abs(self.accelerations), axis=1))**2, ts, ts*3)
         
@@ -91,6 +92,7 @@ class Aircraft:
         
         # Update the positions and headings
         self.positions[active_idxs] += (self.scale*self.velocities[active_idxs])*ts
+        self.position_error = np.random.normal(loc = self.positions, scale=3, size = self.positions.shape)
         self.headings[active_idxs] = np.rad2deg(np.arctan2(self.velocities[[active_idxs],1], self.velocities[[active_idxs],0]))
 
         # Update the velocity and accel randomly
@@ -137,8 +139,8 @@ class Aircraft:
         return self._iterate_aircraft()
 
     def _iterate_aircraft(self):
-        for position, velocity, heading, accel, flight_times, max_flight_times, active in zip(self.positions, self.velocities, self.headings, self.accelerations, self.flight_times, self.max_flight_times, self.active):
-            yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1], flight_times, max_flight_times, active]
+        for position, velocity, heading, accel, flight_times, max_flight_times, position_error, active in zip(self.positions, self.velocities, self.headings, self.accelerations, self.flight_times, self.max_flight_times, self.position_error, self.active):
+            yield [position[0],position[1], velocity[0], velocity[1],heading, accel[0], accel[1], flight_times, max_flight_times, position_error, active]
         
 
 
