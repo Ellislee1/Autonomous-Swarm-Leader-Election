@@ -132,6 +132,7 @@ def axial_round(relative_qs, relative_rs, relative_ss):
     return np.array(list(zip(q,r)))
   
 def get_vertices(centre, size):
+    size-=2
     return np.asarray([
         [
             centre[0] + (size * np.cos((np.pi/3) * (i+1))),

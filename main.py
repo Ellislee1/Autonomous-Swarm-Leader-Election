@@ -1,18 +1,24 @@
-from src import UI, Environment
+from src import UI, Environment,SimUI, InfoUI
 import threading
 import matplotlib.pyplot as plt
 import numpy as np
+import pyglet
 
 SCREEN_SIZE = (1200,900)
+N_SIMS = 1
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2)
 
-ui = UI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
+# ui = UI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
+ui = SimUI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
+info = InfoUI((400,900), env)
 
-env_thread = threading.Thread(target=env.run, daemon=True)
+env_thread = threading.Thread(target=env.run_n,args=[N_SIMS], daemon=True)
 
 env_thread.start()
-ui.run()
+# ui.run()
+# pyglet.clock.schedule_interval(lambda dt: ui.flip(), 1)
+pyglet.app.run(1/30)
 
 log = env.stop()
 env_thread.join()
