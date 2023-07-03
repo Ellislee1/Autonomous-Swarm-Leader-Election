@@ -18,8 +18,10 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways):
         if previous_gateways[i] in valid_candidates:
             leaders.append(previous_gateways[i])
             continue
-
-        leaders.append(valid_candidates[np.argmax(aircraft.heuristics[valid_candidates])])
+        
+        dists = np.linalg.norm(aircraft.positions[valid_candidates]-towers.centres[i],axis=1)
+        
+        leaders.append(valid_candidates[np.argmax(aircraft.heuristics[valid_candidates]-dists)])
     
     force_update_accelerations(leaders, aircraft, towers, active_aircraft)
     return leaders

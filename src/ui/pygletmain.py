@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 class InfoUI(pyglet.window.Window):
     def __init__(self,screen_size:(int,int), env):
-        super().__init__(*screen_size, resizable=True)
+        super().__init__(*screen_size, resizable=False, )
         self.env = env
         self.screen_size = self.width,self.height = screen_size
         
@@ -17,13 +17,28 @@ class InfoUI(pyglet.window.Window):
     def draw_env_info(self):
         batch = pyglet.graphics.Batch()
         sim_time = pyglet.text.Label(f'Sim Time: {self.env.sim_time}', color = (255,255,255,255),font_size=14, x=10, y=self.height-14, anchor_x='left', anchor_y='center', batch=batch)
-        
+
         time_passed = (time.perf_counter() - self.env.start_time) * 1000
         wall_time = (datetime(1,1,1)+timedelta(milliseconds=time_passed)).strftime("%H:%M:%S.%f")[:-4]
         wall_time_label = pyglet.text.Label(f'Wall Time: {wall_time}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*2)-5, anchor_x='left', anchor_y='center', batch=batch)
-        
+
         active_ac = pyglet.text.Label(f'Active Aircraft: {self.env.active_ac}/{len(self.env.state.positions)}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*3)-(5*2), anchor_x='left', anchor_y='center', batch=batch)
-        
+
+        batch_break = pyglet.text.Label(
+            '-------- Batch Info --------',
+            color=(255, 255, 255, 255),
+            font_size=14,
+            x=self.width//2,
+            y=self.height - (14 * 4) - (5 * 3),
+            anchor_x='center',
+            anchor_y='center',
+            batch=batch,
+        )
+
+        sim_batch = pyglet.text.Label(f'Sim Batch: {self.env.sim_run}/{self.env.max_batches}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*5)-(5*4), anchor_x='left', anchor_y='center', batch=batch)
+        time_passed = (time.perf_counter() - self.env.t_delta) * 1000
+        t_wall = (datetime(1,1,1)+timedelta(milliseconds=time_passed)).strftime("%H:%M:%S.%f")[:-4]
+        batch_time = pyglet.text.Label(f'Total Wall Time: {t_wall}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*6)-(5*5), anchor_x='left', anchor_y='center', batch=batch)
         batch.draw()
         
 

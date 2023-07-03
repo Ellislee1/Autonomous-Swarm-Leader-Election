@@ -71,9 +71,11 @@ class Aircraft:
         """Update the environment
         """
 
-        val = 1e-4*np.sum(np.abs(self.accelerations), axis=1)
+        val = (np.sum(np.abs(self.accelerations), axis=1)/(self.max_accel**2))/10
         
-        self.flight_times += ts+val # Update how long the aircraft have been in the air for
+        print(np.clip(ts+ 1/(np.sum(np.abs(self.accelerations), axis=1))**2, ts, ts*3))
+        
+        self.flight_times += np.clip(ts+ 1/(np.sum(np.abs(self.accelerations), axis=1))**2, ts, ts*3)
         
         # self.flight_times += ts
         

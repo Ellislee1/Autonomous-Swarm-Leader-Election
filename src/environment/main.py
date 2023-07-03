@@ -48,6 +48,17 @@ class State:
         """
         state = list(self.aircraft) # The environment states is over all aircraft
         self.state_log.append(state) # append this log to the state_log
+        
+    def reset(self, sim_t, N):
+        self.sim_t = sim_t
+        self.aircraft=Aircraft() # Instansiate the aircraft object
+        
+        self.state_log = []
+         
+        for _ in range(N): # Add N aircraft
+            self.aircraft.add_ac(self.bounds)
+            
+        self.log() # Begin the logging
     
                     
 
@@ -65,6 +76,9 @@ class Environment:
         self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
+        self.sim_run = 0
+        self.max_batches = 0
+        self.t_delta = time.perf_counter()
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -97,6 +111,14 @@ class Environment:
        towers.active[idxs] = False
        
        return towers
+   
+    def run_n (self, n = 5, ts = 0.01, N=30):
+        self.max_batches = n
+        self.t_delta = time.perf_counter()
+        for _ in range(n):
+            self.sim_run+=1
+            self.reset(N)
+            self.run(ts)
         
     def run(self, ts=0.01):
         """The main run loop
@@ -130,6 +152,13 @@ class Environment:
         self.running = False
         
         return np.array(self.__state.state_log)
+    
+    def reset(self, N=30):
+        self.__state.reset(0, N)
+        self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
+        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
+        self.start_time = 0
+        self.logger = Logger()
         
     
         
