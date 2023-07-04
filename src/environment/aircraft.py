@@ -47,7 +47,7 @@ class Aircraft:
         """This function appends the aircraft to already occupied arrays
         """
         self.positions = np.append(self.positions, [pos], axis=0)
-        self.position_error = np.append(self.position_error, [np.random.normal(loc = pos, scale=2.25, size=pos.shape)])
+        self.position_error = np.append(self.position_error, [np.random.normal(loc = pos, scale=5, size=2)],axis=0)
         self.velocities = np.append(self.velocities, [vel], axis=0)
         self.accelerations = np.append(self.accelerations,[accel],axis=0)
         self.headings = np.append(self.headings, [np.rad2deg(np.arctan2(vel[1], vel[0]))])
@@ -60,7 +60,7 @@ class Aircraft:
         """This function instantiates new state storers and then appends an aircraft
         """
         self.positions = np.array([pos])
-        self.position_error = np.array([np.random.normal(loc = pos, scale=2.25, size=pos.shape)])
+        self.position_error = np.array([np.random.normal(loc = pos, scale=5, size=2)])
         self.velocities = np.array([vel])
         self.accelerations = np.array([accel])
         self.headings = np.array([np.deg2rad(np.arctan2(vel[1], vel[0]))])
@@ -73,12 +73,12 @@ class Aircraft:
     def update(self, ts, bounds):
         """Update the environment
         """
-
-        val = (np.sum(np.abs(self.accelerations), axis=1)/(self.max_accel**2))/10
+        # val = (np.log1p(self.flight_times/self.max_flight_times)/)*np.log1p(np.sum(np.abs(self.accelerations),axis=1)/(self.max_accel*2))
+        val = 0.03*((np.log1p(self.flight_times/self.max_flight_times)/np.log1p(2))*np.log1p(np.sum(np.abs(self.accelerations),axis=1)/(self.max_accel*2)))
         
-        self.flight_times += np.clip(ts+ 1/(np.sum(np.abs(self.accelerations), axis=1))**2, ts, ts*3)
+        # print(val)
         
-        # self.flight_times += ts
+        self.flight_times += ts + val
         
         
         # Get the list of active and inactive aircraft
@@ -92,7 +92,7 @@ class Aircraft:
         
         # Update the positions and headings
         self.positions[active_idxs] += (self.scale*self.velocities[active_idxs])*ts
-        self.position_error = np.random.normal(loc = self.positions, scale=3, size = self.positions.shape)
+        self.position_error = np.random.normal(loc = self.positions, scale=5, size = self.positions.shape)
         self.headings[active_idxs] = np.rad2deg(np.arctan2(self.velocities[[active_idxs],1], self.velocities[[active_idxs],0]))
 
         # Update the velocity and accel randomly
@@ -134,6 +134,8 @@ class Aircraft:
     def update_heuristics(self, ts):
         self.heuristics = np.clip((self.max_flight_times-self.flight_times),0, np.inf)
 
+    def __getitem__(self, i):
+        return np.array([*self.positions[i], *self.position_error[i], *self.velocities[i], *self.accelerations[i], self.headings[i], self.flight_times[i], self.max_flight_times[i], self.heuristics[i], 1 if self.active[i] else 0])
     
     def __iter__(self):
         return self._iterate_aircraft()

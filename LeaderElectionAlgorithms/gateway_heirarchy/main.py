@@ -1,6 +1,6 @@
 import numpy as np
 from .gateway_election import get_gateway_leaders
-from .leader_election import leader_election
+from .leader_election import NN_Model
 from functools import reduce
 
 class Leader_Election:
@@ -9,9 +9,10 @@ class Leader_Election:
         self.are_2IC = [None]*n_towers
         self.update_timer = 0
         self.frequency = frequency
+        
+        self.model = NN_Model(17)
     
-    def update(self, aircraft, towers, update_interval):
-        leader_election(aircraft)
+    def update(self, aircraft, towers, sim_time):
         
         active_idxs = np.where(aircraft.active)[0]
         if len(active_idxs) == 0:
@@ -26,6 +27,8 @@ class Leader_Election:
         in_towers = reduce(lambda x,y: x+y, in_towers)
         
         active_idxs = np.intersect1d(in_towers, active_idxs)
+        
+        self.model.leader_election(aircraft, towers, active_idxs, active_towers, sim_time)
 
         if self.are_leaders is None or any(
             leader not in active_idxs for leader in self.are_leaders

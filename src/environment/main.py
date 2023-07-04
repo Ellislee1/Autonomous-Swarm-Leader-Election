@@ -137,7 +137,7 @@ class Environment:
             if update_counter % 16 == 0:
                 self.__state.update(ts) # Update the aircraft environment
                 self.towers.update_towers(self.__state.aircraft) # Update the tower environment
-                self.leader_election.update(self.__state.aircraft, self.towers, self.ts)
+                self.leader_election.update(self.__state.aircraft, self.towers, self.__state.sim_t/1000)
 
                 self.logger.log_towers(self.towers)
             update_counter += 1

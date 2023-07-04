@@ -74,6 +74,14 @@ class Towers:
     def bandwith_as_percent(self,i):
         return max(1-((self.base_bandwidths[i]+len(self.aircraft_list[i]))/self.max_bandwidths[i]),0)
     
+    def get_parent_tower(self, coords):
+        cubic = self.xy_to_cubic_hex(np.array([coords]))
+        
+        idx = np.where(
+            (self.cube_coords==cubic).all(axis=1))[0][0]
+        
+        return idx if self.active[idx] else None
+    
     def get_centre(self, i):
         return self.centres[i]
     
@@ -107,8 +115,8 @@ class Towers:
         self.aircraft_list.append([])
         
     def xy_to_cubic_hex(self, points):
-        relative_qs = ((2./3)* (points[:,0]-self.offsets[0]))/self.sizes
-        relative_rs = (((-1./3)*(points[:,0]-self.offsets[0]))+((np.sqrt(3)/3)*(points[:,1]-self.offsets[1])))/self.sizes
+        relative_qs = ((2./3)* (points[:,0]-self.offsets[0,0]))/self.sizes
+        relative_rs = (((-1./3)*(points[:,0]-self.offsets[0,0]))+((np.sqrt(3)/3)*(points[:,1]-self.offsets[0,1])))/self.sizes
         relative_ss = -relative_qs-relative_rs
         
         return axial_round(relative_qs, relative_rs, relative_ss)
@@ -128,7 +136,7 @@ def axial_round(relative_qs, relative_rs, relative_ss):
     q[q_idxs] = -r[q_idxs]-s[q_idxs]
     r[r_idxs] = -q[r_idxs]-s[r_idxs]
     # s[s_idxs] = -q[s_idxs]-r[s_idxs]
-        
+    
     return np.array(list(zip(q,r)))
   
 def get_vertices(centre, size):
