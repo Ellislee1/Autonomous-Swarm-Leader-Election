@@ -6,8 +6,9 @@ import pyglet
 
 SCREEN_SIZE = (1200,900)
 N_SIMS = 1
+N_TASKS = 10
 
-env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2)
+env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_tasks=N_TASKS)
 
 # ui = UI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
 ui = SimUI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))

@@ -6,6 +6,7 @@ import numpy as np
 
 from .aircraft import Aircraft
 from .towers import Towers
+from .tasks import TaskManager
 from src.logging import Logger
 from LeaderElectionAlgorithms import Gateway_Heirarchy
 
@@ -66,11 +67,13 @@ class State:
 class Environment:
     """This class holds and runs the environment. It is designed to be executed from a child thread from the UI.
     """
-    def __init__(self, bounds:(float,float), grid_centre,sim_t:float = 0.0):
+    def __init__(self, bounds:(float,float), grid_centre,sim_t:float = 0.0, n_tasks = 5):
         self.running = False # A flag for if the sim is running
         self.grid_centre = grid_centre # The centre coordinates for the middle hex
         
         self.__state = State(bounds, sim_t) # Instantiate the state (aircraft)
+        
+        self.task_manager = TaskManager(bounds, n_tasks)
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
@@ -130,21 +133,22 @@ class Environment:
         self.running = True # Simulation running flag
         self.start_time = time.perf_counter()
         update_counter = 0
+        sim_t = 0
 
         while self.running: # Run while the flag is active
             s = time.perf_counter()
 
-            if update_counter % 16 == 0:
-                self.__state.update(ts) # Update the aircraft environment
-                self.towers.update_towers(self.__state.aircraft) # Update the tower environment
-                self.leader_election.update(self.__state.aircraft, self.towers, self.ts)
-
-                self.logger.log_towers(self.towers)
+            # if update_counter % 60 == 0:
+            self.__state.update(ts) # Update the aircraft environment
+            self.towers.update_towers(self.__state.aircraft) # Update the tower environment
+            self.task_manager.update(round(update_counter*self.ts,2))
+            self.leader_election.update(self.__state.aircraft, self.towers, self.ts)
+            self.logger.log_towers(self.towers)
             update_counter += 1
+            sim_t = update_counter*self.ts
 
             if not any(ac[-1] for ac in self.state):
                 self.running = False # Exit the simulation when no aircraft are active
-         
     
     def stop(self):
         """Manual stopping of the simulation (for UI version)
