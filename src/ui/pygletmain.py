@@ -90,10 +90,13 @@ class SimUI(pyglet.window.Window):
         task_elems = []
         
         for i, task in enumerate(self.env.task_manager.tasks):
-            percent = (self.env.task_manager.compleated[i]/100)
-            t = pyglet.text.Label('!',font_size=24, anchor_x='center', align='center', batch=task_batch, x=task[0], y=task[1], color=(int(255*(1-percent)),int(255*percent),0,255), bold = True)
-            # s = pyglet.shapes.Circle(*task,radius=3,color=(255,0,0,255), batch=task_batch)
-            task_elems.append(t)
+            try:
+                percent = (self.env.task_manager.compleated[i]/100)
+                t = pyglet.text.Label('!',font_size=24, anchor_x='center', align='center', batch=task_batch, x=task[0], y=task[1], color=(int(255*(1-percent)),int(255*percent),0,255), bold = True)
+                # s = pyglet.shapes.Circle(*task,radius=3,color=(255,0,0,255), batch=task_batch)
+                task_elems.append(t)
+            except IndexError:
+                print('Index {i} out of bounds skipping ...')
         
         task_batch.draw()
     

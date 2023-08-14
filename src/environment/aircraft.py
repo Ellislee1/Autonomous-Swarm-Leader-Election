@@ -25,7 +25,7 @@ class Aircraft:
         
         self.updates = 0 # Howmany updates have occured
     
-    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(60,120)):
+    def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None, flight_time_bounds:(float,float)=(90,180)):
         """Add an aircraft to the environment with either predefined vars or randomly generated is None.
         """
         
