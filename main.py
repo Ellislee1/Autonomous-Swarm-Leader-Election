@@ -5,8 +5,10 @@ import numpy as np
 import pyglet
 
 SCREEN_SIZE = (1200,900)
-N_SIMS = 1
-N_TASKS = 10
+N_SIMS = 5
+N_TASKS = 1
+TS = 0.01
+N_AC = 30
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_tasks=N_TASKS)
 
@@ -14,12 +16,12 @@ env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_task
 ui = SimUI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
 info = InfoUI((400,900), env)
 
-env_thread = threading.Thread(target=env.run_n,args=[N_SIMS], daemon=True)
+env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS], daemon=True)
 
 env_thread.start()
 # ui.run()
 # pyglet.clock.schedule_interval(lambda dt: ui.flip(), 1)
-pyglet.app.run(1/30)
+pyglet.app.run(1/60)
 
 log = env.stop()
 env_thread.join()

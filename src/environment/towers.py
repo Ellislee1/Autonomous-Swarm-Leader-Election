@@ -26,14 +26,21 @@ class Towers:
     def state(self):
         return np.column_stack((self.active, self.aircraft_list, np.array([self.bandwith_as_percent(i) for i in range(len(self.active))])))
     
-    def update_towers(self, aircraft):
-        relative_qs = ((2. / 3) * (aircraft.positions[:, 0] - self.offsets[0][0])) / self.sizes
-        relative_rs = (((-1. / 3) * (aircraft.positions[:, 0] - self.offsets[0][0])) + ((np.sqrt(3) / 3) * (aircraft.positions[:, 1] - self.offsets[0][1]))) / self.sizes
+    def get_tower(self, coords):
+        relative_qs = ((2. / 3) * (coords[:, 0] - self.offsets[0][0])) / self.sizes
+        relative_rs = (((-1. / 3) * (coords[:, 0] - self.offsets[0][0])) + ((np.sqrt(3) / 3) * (coords[:, 1] - self.offsets[0][1]))) / self.sizes
         relative_ss = -relative_qs - relative_rs
+        
+        hex_coords = axial_round(relative_qs, relative_rs, relative_ss)
+        
+        idx, tower_assignments = np.where(np.all(hex_coords[:, np.newaxis, :] == self.cube_coords, axis=2))
+        
+        return idx, tower_assignments
 
-        coords = axial_round(relative_qs, relative_rs, relative_ss)
-
-        ac, tower_assignments = np.where(np.all(coords[:, np.newaxis, :] == self.cube_coords, axis=2))
+        
+    
+    def update_towers(self, aircraft):
+        ac, tower_assignments = self.get_tower(aircraft.positions)
 
 
         new_aircraft_list = [[] for _ in range(len(self.centres))]

@@ -73,15 +73,16 @@ class Environment:
         
         self.__state = State(bounds, sim_t) # Instantiate the state (aircraft)
         
-        self.task_manager = TaskManager(bounds, n_tasks)
-        
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
+        self.task_manager = TaskManager(bounds, self.towers, n_tasks)
         self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
         self.sim_run = 0
         self.max_batches = 0
         self.t_delta = time.perf_counter()
+        
+        self.bounds = bounds
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -115,12 +116,12 @@ class Environment:
        
        return towers
    
-    def run_n (self, n = 5, ts = 0.01, N=30):
+    def run_n (self, n = 5, ts = 0.01, N=30, n_tasks=5):
         self.max_batches = n
         self.t_delta = time.perf_counter()
         for _ in range(n):
             self.sim_run+=1
-            self.reset(N)
+            self.reset(N, n_tasks)
             self.run(ts)
         
     def run(self, ts=0.01):
@@ -141,7 +142,7 @@ class Environment:
             # if update_counter % 60 == 0:
             self.__state.update(ts) # Update the aircraft environment
             self.towers.update_towers(self.__state.aircraft) # Update the tower environment
-            self.task_manager.update(round(update_counter*self.ts,2))
+            self.task_manager.update(round(update_counter*self.ts,2), self.towers)
             self.leader_election.update(self.__state.aircraft, self.towers, self.ts)
             self.logger.log_towers(self.towers)
             update_counter += 1
@@ -157,9 +158,10 @@ class Environment:
         
         return np.array(self.__state.state_log)
     
-    def reset(self, N=30):
+    def reset(self, N=30, n_tasks=5):
         self.__state.reset(0, N)
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
+        self.task_manager = TaskManager(self.bounds, self.towers, n_tasks)
         self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()

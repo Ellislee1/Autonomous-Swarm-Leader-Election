@@ -90,8 +90,9 @@ class SimUI(pyglet.window.Window):
         task_elems = []
         
         for task in self.env.task_manager.tasks:
-            t = pyglet.text.Label('!',font_size=24, anchor_x='left', align='center', batch=task_batch, x=task[0], y=task[1], color=(255,0,0,255), bold = True)
-            task_elems.append(t)
+            t = pyglet.text.Label('!',font_size=24, anchor_x='center', align='center', batch=task_batch, x=task[0], y=task[1], color=(255,0,0,255), bold = True)
+            s = pyglet.shapes.Circle(*task,radius=3,color=(255,0,0,255), batch=task_batch)
+            task_elems.append([t,set()])
         
         task_batch.draw()
     
