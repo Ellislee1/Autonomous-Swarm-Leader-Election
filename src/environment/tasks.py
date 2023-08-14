@@ -29,10 +29,19 @@ class TaskManager:
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])
             reg_ac = towers.aircraft_list[self.tower_assignments[i]]
             ac_active_status = aircraft.aircraft.active[reg_ac]
+            active_idxs = np.where(ac_active_status)[0]
+            active_ac = np.array(reg_ac)[active_idxs]
             
-            self.compleated[i] += np.round((len(np.where(ac_active_status)[0])*ts)/dupes,3)
-
-        print(self.compleated)
+            self.compleated[i] += np.round((len(active_idxs)*ts)/dupes,3)
+            
+            if len(active_ac)> 0:
+            
+                centre = towers.centres[self.tower_assignments[i]]
+                
+                accels = np.clip(-(aircraft.aircraft.position_error[active_ac]-centre), -aircraft.aircraft.max_accel, aircraft.aircraft.max_accel)
+                aircraft.aircraft.accelerations[active_ac,:] = accels
+                
+        
         
         finished = np.where(self.compleated >=100.)[0]
         if len(finished) > 0:
