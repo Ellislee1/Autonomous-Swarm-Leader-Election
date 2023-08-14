@@ -46,6 +46,7 @@ class SimUI(pyglet.window.Window):
     def __init__(self, env:object, screen_size:(int,int), fps:int = 60):
         super().__init__(*screen_size)
         self.env = env
+        self.screen_size = screen_size
         self.colours = [(0,0,0,255), (128,128,128,255),(96, 139, 209,255),(2, 64, 247,255),(0,200,0,255)]
         self.ac_r = 10
         # self.tower_batch = pyglet.graphics.Batch()
@@ -63,6 +64,9 @@ class SimUI(pyglet.window.Window):
     def draw_towers(self):
         tower_batch = pyglet.graphics.Batch()
         elem_list = []
+        
+        bg = pyglet.shapes.Rectangle(0, 0, *self.screen_size, batch=tower_batch, color=(255,255,255,250))
+        
         for idx in self.env.towers.active_idxs[0]:
             c = self.env.towers.get_gradient(idx).replace('#','')
             hexagon = pyglet.shapes.Polygon(*self.env.towers[idx][6].tolist(),
@@ -94,7 +98,7 @@ class SimUI(pyglet.window.Window):
                 colour = (255,0,0,255)
             elif k in self.env.leader_election.are_2IC:
                 outline_rad = rad + 5
-                colour = (255, 255, 255,200)
+                colour = (0, 0, 0,200)
             else:
                 outline_rad = rad + 3
                 colour = (0,0,0,100)
