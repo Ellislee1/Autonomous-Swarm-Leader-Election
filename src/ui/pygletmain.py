@@ -119,8 +119,6 @@ class SimUI(pyglet.window.Window):
             else:
                 outline_rad = rad + 3
                 colour = (0,0,0,100)
-                
-            colour_idx = min(int((len(self.colours)-1)*(1-ac[7]/ac[8]))+1, len(self.colours)-1) if ac[7] <= ac[8] else 0
             
             for i in range(0,360,360//3):
                 theta = np.deg2rad((i+ac[4])%360)
@@ -150,7 +148,16 @@ class SimUI(pyglet.window.Window):
                 # with contextlib.suppress(Exception):
                 #     pygame.draw.lines(self.screen, (255, 0, 255), False, last_n[:,k,:2], width=2)
             # pygame.draw.polygon(self.screen, self.colours[colour_idx], points)
-            ac = pyglet.shapes.Polygon(*points,color=self.colours[colour_idx], batch=ac_batch)
+            
+            
+            bat_percent = (ac[7])/(ac[8])
+            if bat_percent <1:
+                
+                x = int(104*bat_percent)
+                y = int((255-104)*bat_percent)
+                ac = pyglet.shapes.Polygon(*points,color=(x,x,255-y), batch=ac_batch)
+            else:
+                ac = pyglet.shapes.Polygon(*points,color=(0,0,0), batch=ac_batch)
             
             ac_elems.append((outline,ac, label, error))
             

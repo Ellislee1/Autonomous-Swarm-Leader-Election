@@ -7,7 +7,7 @@ import pyglet
 SCREEN_SIZE = (1200,900)
 N_SIMS = 1
 N_TASKS = 10
-TS = 0.01
+TS = 1/60
 N_AC = 30
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_tasks=N_TASKS)

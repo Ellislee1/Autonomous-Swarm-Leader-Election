@@ -27,6 +27,9 @@ class Towers:
         return np.column_stack((self.active, self.aircraft_list, np.array([self.bandwith_as_percent(i) for i in range(len(self.active))])))
     
     def get_tower(self, coords):
+        if len(coords) == 0:
+            return [],[]
+        
         relative_qs = ((2. / 3) * (coords[:, 0] - self.offsets[0][0])) / self.sizes
         relative_rs = (((-1. / 3) * (coords[:, 0] - self.offsets[0][0])) + ((np.sqrt(3) / 3) * (coords[:, 1] - self.offsets[0][1]))) / self.sizes
         relative_ss = -relative_qs - relative_rs
