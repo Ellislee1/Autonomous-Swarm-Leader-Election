@@ -24,21 +24,23 @@ class InfoUI(pyglet.window.Window):
 
         active_ac = pyglet.text.Label(f'Active Aircraft: {self.env.active_ac}/{len(self.env.state.positions)}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*3)-(5*2), anchor_x='left', anchor_y='center', batch=batch)
 
+        active_tasks = pyglet.text.Label(f'Active Tasks: {len(self.env.task_manager.tasks)}/{self.env.task_manager.total_tasks}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*4)-(5*3), anchor_x='left', anchor_y='center', batch=batch)
+        
         batch_break = pyglet.text.Label(
             '-------- Batch Info --------',
             color=(255, 255, 255, 255),
             font_size=14,
             x=self.width//2,
-            y=self.height - (14 * 4) - (5 * 3),
+            y=self.height - (14 * 5) - (5 * 4),
             anchor_x='center',
             anchor_y='center',
             batch=batch,
         )
 
-        sim_batch = pyglet.text.Label(f'Sim Batch: {self.env.sim_run}/{self.env.max_batches}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*5)-(5*4), anchor_x='left', anchor_y='center', batch=batch)
+        sim_batch = pyglet.text.Label(f'Sim Batch: {self.env.sim_run}/{self.env.max_batches}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*6)-(5*5), anchor_x='left', anchor_y='center', batch=batch)
         time_passed = (time.perf_counter() - self.env.t_delta) * 1000
         t_wall = (datetime(1,1,1)+timedelta(milliseconds=time_passed)).strftime("%H:%M:%S.%f")[:-4]
-        batch_time = pyglet.text.Label(f'Total Wall Time: {t_wall}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*6)-(5*5), anchor_x='left', anchor_y='center', batch=batch)
+        batch_time = pyglet.text.Label(f'Total Wall Time: {t_wall}', color = (255,255,255,255),font_size=14, x=10, y=self.height-(14*7)-(5*6), anchor_x='left', anchor_y='center', batch=batch)
         batch.draw()
         
 

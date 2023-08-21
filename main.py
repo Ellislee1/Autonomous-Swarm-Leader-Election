@@ -5,8 +5,8 @@ import numpy as np
 import pyglet
 
 SCREEN_SIZE = (1200,900)
-N_SIMS = 1
-N_TASKS = 10
+N_SIMS = 3
+N_TASKS = 15
 TS = 1/60
 N_AC = 30
 

@@ -3,28 +3,45 @@ import numpy as np
 class TaskManager:
     def __init__(self, area, towers, n_tasks = 5):
         self.area = area
-        self.tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
-        self.check_in_tower(towers)
+        tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
+        self.tasks, self.tower_assignments = self.check_in_tower(tasks, towers)
         self.compleated = np.zeros(len(self.tasks))
-        
+        self.total_tasks = len(self.tasks)
     
-    def check_in_tower(self, towers):
-        task, tower = towers.get_tower(self.tasks)
+    def add_tasks(self, towers, n_tasks = 1):
+        tasks = np.round(np.random.uniform((0,0), self.area,(n_tasks,2)),0)
+        
+        tasks, tower_assignments = self.check_in_tower(tasks, towers)
+        
+        if len(self.tasks)>0:
+            self.tasks = np.append(self.tasks, tasks, axis=0)
+            self.compleated = np.append(self.compleated, [0]*n_tasks,axis=0)
+            self.tower_assignments = np.append(self.tower_assignments, tower_assignments,axis=0)
+        else:
+            self.tasks = tasks
+            self.compleated = np.array([0])
+            self.tower_assignments = tower_assignments
+        
+        self.total_tasks += 1
+    
+    def check_in_tower(self, tasks, towers):
+        task, tower = towers.get_tower(tasks)
         active_status = towers.active[tower]
 
         while not all(active_status):
             invalid = np.where(active_status == False)[0]
             
-            self.tasks[invalid] = np.random.uniform((0,0), self.area,(len(invalid),2))
+            tasks[invalid] = np.round(np.random.uniform((0,0), self.area,(len(invalid),2)),0)
             
-            task, tower = towers.get_tower(self.tasks)
+            task, tower = towers.get_tower(tasks)
             active_status = towers.active[tower]
         
-        self.tower_assignments = tower
+        return tasks,tower
     
-    def update(self, update_counter, towers, aircraft, ts):
-
-
+    def update(self, update_counter, towers, aircraft, sim_time,ts):
+        if sim_time%30 ==0 and sim_time>0:
+            self.add_tasks(towers)
+        
         for i in range(len(self.tower_assignments)):
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])
             reg_ac = towers.aircraft_list[self.tower_assignments[i]]
@@ -56,6 +73,6 @@ class TaskManager:
                 new_tasks.append(self.tasks[i])
                 new_compleated.append(self.compleated[i])
 
-        self.tasks = np.array(new_tasks)
+        tasks = np.array(new_tasks)
         self.compleated = np.array(new_compleated)
-        self.check_in_tower(towers)
+        self.tasks,self.tower_assignments = self.check_in_tower(tasks, towers)

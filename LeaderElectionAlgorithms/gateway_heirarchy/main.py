@@ -10,14 +10,16 @@ class Leader_Election:
         self.update_timer = 0
         self.frequency = frequency
     
-    def update(self, aircraft, towers, update_interval):
+    def update(self, aircraft, towers, sim_t):
+        if sim_t %15 != 0 and sim_t>0:
+            return
+        
         leader_election(aircraft)
         
         active_idxs = np.where(aircraft.active)[0]
         if len(active_idxs) == 0:
             return
-
-
+        
         self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC)
         
         active_towers = np.where(towers.active)[0]
