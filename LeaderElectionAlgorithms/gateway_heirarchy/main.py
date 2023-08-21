@@ -1,5 +1,5 @@
 import numpy as np
-from .gateway_election import get_gateway_leaders
+from .gateway_election import get_gateway_leaders, force_update_accelerations
 from .leader_election import leader_election
 from functools import reduce
 
@@ -11,8 +11,6 @@ class Leader_Election:
         self.frequency = frequency
     
     def update(self, aircraft, towers, sim_t):
-        if sim_t %15 != 0 and sim_t>0:
-            return
         
         leader_election(aircraft)
         
@@ -20,7 +18,11 @@ class Leader_Election:
         if len(active_idxs) == 0:
             return
         
-        self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC)
+        
+        if sim_t %15 == 0 and sim_t>0:
+            self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC)
+        
+        force_update_accelerations(self.are_2IC, aircraft, towers, active_idxs)
         
         active_towers = np.where(towers.active)[0]
         in_towers = np.asanyarray(towers.aircraft_list, dtype=object)[active_towers].reshape(-1).tolist()

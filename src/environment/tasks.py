@@ -1,12 +1,17 @@
 import numpy as np
 
 class TaskManager:
-    def __init__(self, area, towers, n_tasks = 5):
+    def __init__(self, area, towers, n_tasks = 5, random_tasks = True, n_random = 3, rand_interval = (12,60)):
         self.area = area
         tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
         self.tasks, self.tower_assignments = self.check_in_tower(tasks, towers)
         self.compleated = np.zeros(len(self.tasks))
         self.total_tasks = len(self.tasks)
+        self.random_tasks = random_tasks
+        self.n_random = n_random
+        self.rand_interval = rand_interval
+        
+        self.next_random = np.random.choice(self.rand_interval)
     
     def add_tasks(self, towers, n_tasks = 1):
         tasks = np.round(np.random.uniform((0,0), self.area,(n_tasks,2)),0)
@@ -22,7 +27,7 @@ class TaskManager:
             self.compleated = np.array([0])
             self.tower_assignments = tower_assignments
         
-        self.total_tasks += 1
+        self.total_tasks += n_tasks
     
     def check_in_tower(self, tasks, towers):
         task, tower = towers.get_tower(tasks)
@@ -39,8 +44,9 @@ class TaskManager:
         return tasks,tower
     
     def update(self, update_counter, towers, aircraft, sim_time,ts):
-        if sim_time%30 ==0 and sim_time>0:
-            self.add_tasks(towers)
+        if sim_time>= self.next_random:
+            self.add_tasks(towers,n_tasks=self.n_random)
+            self.next_random += np.random.choice(self.rand_interval)
         
         for i in range(len(self.tower_assignments)):
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])

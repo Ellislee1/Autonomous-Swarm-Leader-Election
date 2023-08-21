@@ -1,29 +1,48 @@
 import numpy as np
 import heapq
 
+def get_heuristics(towers, t_idx, ac_idx, aircraft):
+    tower_centre = towers.centres[t_idx]
+    aircraft_positions = aircraft.position_error[ac_idx]
+    active_bat = aircraft.flight_times[ac_idx]/aircraft.max_flight_times[ac_idx]
+    
+    dist_to_tower = np.linalg.norm(aircraft_positions-tower_centre,axis=1)
+    centroid = np.mean(aircraft_positions,axis=0)
+    dist_to_centroid = np.linalg.norm(aircraft_positions-centroid,axis=1)
+    
+    g = 1
+    a = 5
+    
+    heuristics = np.log(1+((dist_to_tower+dist_to_centroid)/(g*(active_bat+1e-100))))**(active_bat*a)
+    
+    return heuristics
+
 def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways):
     leaders = []
     
-    for i, tower in enumerate(towers.aircraft_list):
-        if len(tower) == 0 or not towers.active[i]:
+    for k, active in enumerate(towers.active):
+        if not active: 
             leaders.append(None)
             continue
         
-        valid_candidates = np.intersect1d(tower, active_aircraft)
+        tower_ac = towers.aircraft_list[k]
         
-        if len(valid_candidates) == 0:
+        if tower_ac == []:
             leaders.append(None)
             continue
+        
+        if len(tower_ac) <2  and tower_ac[0] in active_aircraft:
+            leaders.append(tower_ac[0])
+        else:
+            candidates = np.intersect1d(tower_ac, active_aircraft)
+            if len(candidates) == 0:
+                continue
+            heuristics = get_heuristics(towers, k, candidates, aircraft)
+            best = np.argmin(heuristics)
+            
+            leaders.append(candidates[best])
 
-        if previous_gateways[i] in valid_candidates:
-            leaders.append(previous_gateways[i])
-            continue
-        
-        dists = np.linalg.norm(aircraft.positions[valid_candidates]-towers.centres[i],axis=1)
-        
-        leaders.append(valid_candidates[np.argmax(aircraft.heuristics[valid_candidates]-dists)])
     
-    force_update_accelerations(leaders, aircraft, towers, active_aircraft)
     return leaders
 
 
