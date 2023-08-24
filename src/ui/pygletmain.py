@@ -97,7 +97,7 @@ class SimUI(pyglet.window.Window):
                 t = pyglet.text.Label('!',font_size=24, anchor_x='center', align='center', batch=task_batch, x=task[0], y=task[1], color=(int(255*(1-percent)),int(255*percent),0,255), bold = True)
                 # s = pyglet.shapes.Circle(*task,radius=3,color=(255,0,0,255), batch=task_batch)
                 task_elems.append(t)
-            except IndexError:
+            except IndexError: # I am not sure what causes this issue yet but it is breaking the system
                 print('Index {i} out of bounds skipping ...')
         
         task_batch.draw()
