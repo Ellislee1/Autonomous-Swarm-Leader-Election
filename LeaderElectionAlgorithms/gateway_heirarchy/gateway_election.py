@@ -17,8 +17,18 @@ def get_heuristics(towers, t_idx, ac_idx, aircraft):
     
     return heuristics
 
-def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways):
+def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, new_leader = False):
     leaders = []
+    
+
+    if not new_leader:
+        for i,leader in enumerate(previous_gateways):
+            if leader is not None and leader in active_aircraft and leader in towers.aircraft_list[i]:
+                leaders.append(leader)
+            else:
+                leaders.append(None)
+        
+        return leaders
     
     for k, active in enumerate(towers.active):
         if not active: 

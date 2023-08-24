@@ -19,25 +19,25 @@ class Leader_Election:
             return
         
         
-        if sim_t %15 == 0 and sim_t>0:
-            self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC)
+
+        self.are_2IC = get_gateway_leaders(aircraft, towers, active_idxs, self.are_2IC, True if sim_t %15 == 0 and sim_t> 0 else False)
         
         force_update_accelerations(self.are_2IC, aircraft, towers, active_idxs)
         
         active_towers = np.where(towers.active)[0]
-        in_towers = np.asanyarray(towers.aircraft_list, dtype=object)[active_towers].reshape(-1).tolist()
+        in_towers = np.asanyarray(towers.aircraft_list, dtype=object)[active_towers].reshape(-1).tolist() 
         
         in_towers = reduce(lambda x,y: x+y, in_towers)
         
         active_idxs = np.intersect1d(in_towers, active_idxs)
 
-        if self.are_leaders is None or any(
-            leader not in active_idxs for leader in self.are_leaders
-        ):
-            try:
-                ac = aircraft.heuristics[active_idxs]
-                self.are_leaders = [active_idxs[np.argmax(ac)]]
-            except:
-                self.are_leaders = []
+        # if self.are_leaders is None or any(
+        #     leader not in active_idxs for leader in self.are_leaders
+        # ):
+        #     try:
+        #         ac = aircraft.heuristics[active_idxs]
+        #         self.are_leaders = [active_idxs[np.argmax(ac)]]
+        #     except:
+        #         self.are_leaders = []
             
         # print(self.are_leaders)

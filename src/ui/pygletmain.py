@@ -117,7 +117,7 @@ class SimUI(pyglet.window.Window):
                 colour = (255,0,0,255)
             elif k in self.env.leader_election.are_2IC:
                 outline_rad = rad + 5
-                colour = (0, 0, 0,200)
+                colour = (0, 255, 0,255)
             else:
                 outline_rad = rad + 3
                 colour = (0,0,0,100)
