@@ -150,6 +150,7 @@ class Environment:
             
             self.logger.log_towers(self.towers)
             self.leader_election.log(self.__state.aircraft, self.towers, np.floor(self.__state.sim_t/1000))
+
             update_counter += 1
             sim_t = update_counter*self.ts
 
