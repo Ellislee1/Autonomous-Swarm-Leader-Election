@@ -10,7 +10,7 @@ def get_heuristics(towers, t_idx, ac_idx, aircraft):
     centroid = np.mean(aircraft_positions,axis=0)
     dist_to_centroid = np.linalg.norm(aircraft_positions-centroid,axis=1)
     
-    g = 1
+    g = 10
     a = 5
     
     heuristics = np.log(1+((dist_to_tower+dist_to_centroid)/(g*(active_bat+1e-100))))**(active_bat*a)
@@ -46,6 +46,7 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
         else:
             candidates = np.intersect1d(tower_ac, active_aircraft)
             if len(candidates) == 0:
+                leaders.append(None)
                 continue
             heuristics = get_heuristics(towers, k, candidates, aircraft)
             best = np.argmin(heuristics)

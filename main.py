@@ -4,11 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyglet
 
+
 SCREEN_SIZE = (1200,900)
 N_SIMS = 3
 N_TASKS = 15
 TS = 1/60
+PATH = 'out/seed_test'
 N_AC = 30
+SEED = 113
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_tasks=N_TASKS)
 
@@ -16,7 +19,7 @@ env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_task
 ui = SimUI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
 info = InfoUI((400,900), env)
 
-env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS], daemon=True)
+env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS, PATH, SEED], daemon=True)
 
 env_thread.start()
 # ui.run()

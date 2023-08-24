@@ -116,13 +116,16 @@ class Environment:
        
        return towers
    
-    def run_n (self, n = 5, ts = 0.01, N=30, n_tasks=5):
+    def run_n (self, n = 5, ts = 0.01, N=30, n_tasks=5, path='out/basic', seed = None):
         self.max_batches = n
         self.t_delta = time.perf_counter()
         for _ in range(n):
             self.sim_run+=1
-            self.reset(N, n_tasks)
+            self.reset(N, n_tasks, seed = seed)
             self.run(ts)
+            self.leader_election.save_log(f'{path}_run{self.sim_run}.npy')
+            
+            
         
     def run(self, ts=0.01):
         """The main run loop
@@ -144,7 +147,9 @@ class Environment:
             self.towers.update_towers(self.__state.aircraft) # Update the tower environment
             self.task_manager.update(round(update_counter*self.ts,2), self.towers, self.__state, round(self.__state.sim_t/1000,2), self.ts)
             self.leader_election.update(self.__state.aircraft, self.towers, np.floor(self.__state.sim_t/1000))
+            
             self.logger.log_towers(self.towers)
+            self.leader_election.log(self.__state.aircraft, self.towers, np.floor(self.__state.sim_t/1000))
             update_counter += 1
             sim_t = update_counter*self.ts
 
@@ -158,13 +163,18 @@ class Environment:
         
         return np.array(self.__state.state_log)
     
-    def reset(self, N=30, n_tasks=5):
+    def reset(self, N=30, n_tasks=5, seed = None):
+        if seed is not None:
+            np.random.seed(seed)
+        
+        
         self.__state.reset(0, N)
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(self.bounds, self.towers, n_tasks)
         self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
+    
         
     
         
