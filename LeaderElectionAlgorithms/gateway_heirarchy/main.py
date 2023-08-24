@@ -10,6 +10,7 @@ class Leader_Election:
         self.update_timer = 0
         self.frequency = frequency
         
+
         self.logging = []
         self.last_update = -1
     
@@ -18,6 +19,7 @@ class Leader_Election:
     
     def log(self, aircraft, towers, sim_t):
         state = []
+
         
         active_idxs = np.where(aircraft.active)[0]
         for i, ac in enumerate(self.are_2IC):
@@ -60,6 +62,8 @@ class Leader_Election:
         in_towers = reduce(lambda x,y: x+y, in_towers)
 
         active_idxs = np.intersect1d(in_towers, active_idxs)
+        
+        self.model.leader_election(aircraft, towers, active_idxs, active_towers, sim_time)
 
         # if self.are_leaders is None or any(
         #     leader not in active_idxs for leader in self.are_leaders
