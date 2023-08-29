@@ -1,9 +1,13 @@
 import numpy as np
 import heapq
 
-def get_heuristics(towers, t_idx, ac_idx, aircraft):
+def get_heuristics(towers, t_idx, ac_idx, aircraft, with_error = False):
     tower_centre = towers.centres[t_idx]
-    aircraft_positions = aircraft.position_error[ac_idx]
+    if with_error:
+        aircraft_positions = aircraft.position_error[ac_idx]
+    else:
+        aircraft_positions = aircraft.positions[ac_idx]
+        
     active_bat = aircraft.flight_times[ac_idx]/aircraft.max_flight_times[ac_idx]
     
     dist_to_tower = np.linalg.norm(aircraft_positions-tower_centre,axis=1)
@@ -19,6 +23,7 @@ def get_heuristics(towers, t_idx, ac_idx, aircraft):
 
 def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, new_leader = False):
     leaders = []
+    heuristic_logs = []
     
 
     if not new_leader:
@@ -28,7 +33,7 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
             else:
                 leaders.append(None)
         
-        return leaders
+        return leaders,[]
     
     for k, active in enumerate(towers.active):
         if not active: 
@@ -48,13 +53,16 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
             if len(candidates) == 0:
                 leaders.append(None)
                 continue
-            heuristics = get_heuristics(towers, k, candidates, aircraft)
+            heuristics = get_heuristics(towers, k, candidates, aircraft, with_error=True)
+            true_heuristics = get_heuristics(towers, k, candidates, aircraft, with_error= False)
             best = np.argmin(heuristics)
+            true_best = np.argmin(true_heuristics)
             
             leaders.append(candidates[best])
+            heuristic_logs.append([best, true_best, heuristics, true_heuristics])
 
     
-    return leaders
+    return leaders, heuristic_logs
 
 
 def force_update_accelerations(leaders, aircraft, towers,active_aircraft):

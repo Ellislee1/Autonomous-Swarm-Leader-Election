@@ -47,6 +47,10 @@ class TaskManager:
         if sim_time>= self.next_random:
             self.add_tasks(towers,n_tasks=self.n_random)
             self.next_random += np.random.choice(self.rand_interval)
+            
+        if len(self.compleated)<len(self.tasks):
+            d = len(self.tasks)-len(self.compleated)
+            self.tasks = np.append(self.tasks, [0]*d, axis=0)
         
         for i in range(len(self.tower_assignments)):
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])

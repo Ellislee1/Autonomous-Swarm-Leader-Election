@@ -11,13 +11,16 @@ class Leader_Election:
         self.frequency = frequency
         
         self.logging = []
+        self.true_logging = []
         self.last_update = -1
     
     def save_log(self, path):
         np.save(path, self.logging)
+        np.save(f'{path}-heuristics', self.true_logging)
     
-    def log(self, aircraft, towers, sim_t):
+    def log(self, aircraft, towers, sim_t, heuristics=[]):
         state = []
+        self.true_logging.append(heuristics)
         
         active_idxs = np.where(aircraft.active)[0]
         for i, ac in enumerate(self.are_2IC):
@@ -37,13 +40,13 @@ class Leader_Election:
 
         active_idxs = np.where(aircraft.active)[0]
         if len(active_idxs) == 0:
-            return
+            return []
 
 
 
         update = sim_t % 15 == 0 and sim_t >= 0 and int(sim_t) != self.last_update
         
-        self.are_2IC = get_gateway_leaders(
+        self.are_2IC, heursitsic_data = get_gateway_leaders(
             aircraft,
             towers,
             active_idxs,
@@ -60,6 +63,8 @@ class Leader_Election:
         in_towers = reduce(lambda x,y: x+y, in_towers)
 
         active_idxs = np.intersect1d(in_towers, active_idxs)
+        
+        return heursitsic_data
 
         # if self.are_leaders is None or any(
         #     leader not in active_idxs for leader in self.are_leaders

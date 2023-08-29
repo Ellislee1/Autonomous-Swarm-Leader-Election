@@ -1,7 +1,9 @@
 import numpy as np
 
-data = np.load('out/seed_test_run3.npy', allow_pickle=True)
+data = np.load('out/seed_test_run4.npy', allow_pickle=True)
 print(data.shape)
+
+print(data[-1,0,0])
 
 changed = []
 for i in range(1, len(data)):
@@ -19,3 +21,28 @@ s = np.sum(changed,axis=0)
 w = np.where(s > 0)[0]
 s=s[w]
 print(np.mean(s))
+
+results = []
+for i in range(data.shape[1]):
+    long = []
+    last = -1
+    count = 0
+    for j in range(data.shape[0]):
+        set_ = data[j,i,:]
+        
+        if set_[2] == last and last != -1:
+            count += 1/60
+        elif set_[2] != last and count > 0:
+            long.append(count)
+            count = 0
+            last = set_[2]
+        else:
+            last = set_[2]
+    results.append(long)
+
+avg = []
+for i in range(len(results)):
+    if results[i] != []:
+        avg.append(np.mean(results[i]))
+
+print(avg, np.mean(avg))
