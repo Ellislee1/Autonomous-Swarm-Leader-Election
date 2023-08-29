@@ -9,6 +9,7 @@ from .towers import Towers
 from .tasks import TaskManager
 from src.logging import Logger
 from LeaderElectionAlgorithms import Gateway_Heirarchy
+from LeaderElectionAlgorithms import Age_Ring_Heirarchy
 
 
 class State:
@@ -75,7 +76,7 @@ class Environment:
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(bounds, self.towers, n_tasks)
-        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
+        self.leader_election = Age_Ring_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
         self.sim_run = 0
@@ -171,7 +172,7 @@ class Environment:
         self.__state.reset(0, N)
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(self.bounds, self.towers, n_tasks)
-        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
+        self.leader_election = Age_Ring_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
     
