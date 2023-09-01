@@ -16,7 +16,7 @@ class Ring_Election:
     def save_log(self, path):
         np.save(path, self.logging)
     
-    def log(self, aircraft, towers, sim_t):
+    def log(self, aircraft, towers, sim_t, heuristics = []):
         state = []
         
         active_idxs = np.where(aircraft.active)[0]

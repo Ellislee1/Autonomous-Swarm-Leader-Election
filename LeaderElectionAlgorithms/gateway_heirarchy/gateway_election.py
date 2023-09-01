@@ -17,7 +17,7 @@ def get_heuristics(towers, t_idx, ac_idx, aircraft, with_error = False):
     g = 10
     a = 5
     
-    heuristics = np.log(1+((dist_to_tower+dist_to_centroid)/(g*(active_bat+1e-100))))**(active_bat*a)
+    heuristics = np.log(1+((dist_to_tower+dist_to_centroid)/(g*(active_bat+1e-100)*100)))**(active_bat*a)
     
     return heuristics
 
@@ -54,11 +54,16 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
                 leaders.append(None)
                 continue
             heuristics = get_heuristics(towers, k, candidates, aircraft, with_error=True)
+            m = np.mean(heuristics)
             true_heuristics = get_heuristics(towers, k, candidates, aircraft, with_error= False)
             best = np.argmin(heuristics)
             true_best = np.argmin(true_heuristics)
             
-            leaders.append(candidates[best])
+            if previous_gateways[k] in candidates:
+                print(previous_gateways[k])
+                leaders.append(previous_gateways[k])
+            else:
+                leaders.append(candidates[best])
             heuristic_logs.append([best, true_best, heuristics, true_heuristics])
 
     

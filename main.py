@@ -8,7 +8,7 @@ import pyglet
 SCREEN_SIZE = (1200,900)
 N_SIMS = 5
 N_TASKS = 15
-TS = 1/60
+TS = 1/30
 PATH = 'out/seed_test'
 N_AC = 30
 SEED = None
@@ -24,7 +24,7 @@ env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS, 
 env_thread.start()
 # ui.run()
 # pyglet.clock.schedule_interval(lambda dt: ui.flip(), 1)
-pyglet.app.run(1/60)
+pyglet.app.run(1/10)
 
 log = env.stop()
 env_thread.join()

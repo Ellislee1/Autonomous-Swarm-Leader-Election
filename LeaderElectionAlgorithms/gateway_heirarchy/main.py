@@ -13,6 +13,7 @@ class Leader_Election:
         self.logging = []
         self.true_logging = []
         self.last_update = -1
+        
     
     def save_log(self, path):
         np.save(path, self.logging)

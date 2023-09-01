@@ -43,28 +43,36 @@ class TaskManager:
         
         return tasks,tower
     
-    def update(self, update_counter, towers, aircraft, sim_time,ts):
+    def update(self, update_counter, towers, aircraft, sim_time,ts, active_gateways):
         if sim_time>= self.next_random:
             self.add_tasks(towers,n_tasks=self.n_random)
             self.next_random += np.random.choice(self.rand_interval)
             
         if len(self.compleated)<len(self.tasks):
             d = len(self.tasks)-len(self.compleated)
-            self.tasks = np.append(self.tasks, [0]*d, axis=0)
+            print(self.compleated,[0]*d)
+            self.compleated = np.append(self.tasks, [0]*d)
         
         for i in range(len(self.tower_assignments)):
+            tower_idx = self.tower_assignments[i]
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])
             reg_ac = towers.aircraft_list[self.tower_assignments[i]]
             ac_active_status = aircraft.aircraft.active[reg_ac]
             active_idxs = np.where(ac_active_status)[0]
             active_ac = np.array(reg_ac)[active_idxs]
+            gateway = active_gateways[tower_idx]
+            if gateway:
+                active_ac = active_ac[active_ac != gateway]
             
             self.compleated[i] += np.round((len(active_idxs)*ts)/dupes,3)
             
             if len(active_ac)> 0:
-            
-                centre = towers.centres[self.tower_assignments[i]]
                 
+                if not gateway:
+                    centre = towers.centres[self.tower_assignments[i]]
+                else:
+                    centre = aircraft.aircraft.position_error[gateway]
+            
                 accels = np.clip(-(aircraft.aircraft.position_error[active_ac]-centre), -aircraft.aircraft.max_accel, aircraft.aircraft.max_accel)
                 aircraft.aircraft.accelerations[active_ac,:] = accels
                 

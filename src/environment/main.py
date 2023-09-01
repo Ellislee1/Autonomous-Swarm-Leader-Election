@@ -76,7 +76,7 @@ class Environment:
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(bounds, self.towers, n_tasks)
-        self.leader_election = Age_Ring_Heirarchy(self.towers.n_towers)
+        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
         self.sim_run = 0
@@ -84,6 +84,8 @@ class Environment:
         self.t_delta = time.perf_counter()
         
         self.bounds = bounds
+        
+        self.seeds = [112,133,343,222,143]
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -146,7 +148,7 @@ class Environment:
             # if update_counter % 60 == 0:
             self.__state.update(ts) # Update the aircraft environment
             self.towers.update_towers(self.__state.aircraft) # Update the tower environment
-            self.task_manager.update(round(update_counter*self.ts,2), self.towers, self.__state, round(self.__state.sim_t/1000,2), self.ts)
+            self.task_manager.update(round(update_counter*self.ts,2), self.towers, self.__state, round(self.__state.sim_t/1000,2), self.ts, self.leader_election.are_2IC)
             heuristics_log = self.leader_election.update(self.__state.aircraft, self.towers, np.floor(self.__state.sim_t/1000))
             
             self.logger.log_towers(self.towers)
@@ -165,14 +167,16 @@ class Environment:
         return np.array(self.__state.state_log)
     
     def reset(self, N=30, n_tasks=5, seed = None):
-        if seed is not None:
-            np.random.seed(seed)
+        # if seed is not None:
+        #     np.random.seed(seed)
+        print(self.sim_run)
+        np.random.seed(self.seeds[self.sim_run-1])
         
         
         self.__state.reset(0, N)
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(self.bounds, self.towers, n_tasks)
-        self.leader_election = Age_Ring_Heirarchy(self.towers.n_towers)
+        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
     

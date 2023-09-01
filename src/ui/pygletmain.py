@@ -76,7 +76,7 @@ class SimUI(pyglet.window.Window):
             color=tuple(int(c[i:i+2], 16) for i in (0, 2, 4)), batch=tower_batch)
             
             label = pyglet.text.Label(f'Tower {idx}', color = (0,0,0,255),font_size=12, x=self.env.towers[idx][7][0], y=self.env.towers[idx][7][1]+9, anchor_x='center', anchor_y='center', batch=tower_batch)
-            label2 = pyglet.text.Label(f'Bandwidth: {round(self.env.towers.bandwith_as_percent(idx),2)}', color = (0,0,0,255),font_size=12, x=self.env.towers[idx][7][0], y=self.env.towers[idx][7][1]-9, anchor_x='center', anchor_y='center', batch=tower_batch)
+            label2 = pyglet.text.Label(f'# Drones: {len(self.env.towers.aircraft_list[idx])}', color = (0,0,0,255),font_size=12, x=self.env.towers[idx][7][0], y=self.env.towers[idx][7][1]-9, anchor_x='center', anchor_y='center', batch=tower_batch)
             
             elem_list.append((hexagon,label,label2))
             
