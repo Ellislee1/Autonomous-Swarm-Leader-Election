@@ -19,7 +19,7 @@ env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_task
 ui = SimUI(env, screen_size=(SCREEN_SIZE[0], SCREEN_SIZE[1]+35))
 info = InfoUI((400,900), env)
 
-env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS, PATH, SEED], daemon=True)
+env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS, PATH, SEED, ui,info], daemon=True)
 
 env_thread.start()
 # ui.run()

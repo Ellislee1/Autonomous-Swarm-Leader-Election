@@ -120,7 +120,7 @@ class Environment:
        
        return towers
    
-    def run_n (self, n = 5, ts = 0.01, N=30, n_tasks=5, path='out/basic', seed = None):
+    def run_n (self, n = 5, ts = 0.01, N=30, n_tasks=5, path='out/basic', seed = None, ui = None, info = None):
         self.max_batches = n
         self.t_delta = time.perf_counter()
         for _ in range(n):
@@ -128,8 +128,6 @@ class Environment:
             self.reset(N, n_tasks, seed = seed)
             self.run(ts)
             self.leader_election.save_log(f'{path}_run{self.sim_run}')
-            
-            
         
     def run(self, ts=0.01):
         """The main run loop
