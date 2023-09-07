@@ -1,7 +1,7 @@
 import numpy as np
 
 class TaskManager:
-    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 0, rand_interval = (12,60)):
+    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 3, rand_interval = (12,60)):
         self.area = area
         tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
         self.tasks, self.tower_assignments = self.check_in_tower(tasks, towers)
