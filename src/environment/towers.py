@@ -9,7 +9,7 @@ C2='#ddfaac' # Colour 2
 C1 = "#FF0000" # Colour 1
 
 class Towers:
-    def __init__(self, sizes = 175):
+    def __init__(self, sizes = 200):
         self.cube_coords = []
         self.offsets = []
         self.max_bandwidths = []

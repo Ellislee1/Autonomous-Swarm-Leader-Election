@@ -1,5 +1,5 @@
 import numpy as np
-from .gateway_election import get_gateway_leaders, force_update_accelerations
+from .gateway_election import get_gateway_leaders
 from .leader_election import leader_election
 from functools import reduce
 
@@ -13,6 +13,7 @@ class Leader_Election:
         self.logging = []
         self.true_logging = []
         self.last_update = -1
+        
     
     def save_log(self, path):
         np.save(path, self.logging)
@@ -55,7 +56,7 @@ class Leader_Election:
         )
         self.last_update = int(sim_t)
 
-        force_update_accelerations(self.are_2IC, aircraft, towers, active_idxs)
+        # force_update_accelerations(self.are_2IC, aircraft, towers, active_idxs)
 
         active_towers = np.where(towers.active)[0]
         in_towers = np.asanyarray(towers.aircraft_list, dtype=object)[active_towers].reshape(-1).tolist() 

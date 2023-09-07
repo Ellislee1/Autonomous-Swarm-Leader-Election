@@ -7,19 +7,23 @@ def get_heuristics(towers, t_idx, ac_idx, aircraft, with_error = False):
         aircraft_positions = aircraft.position_error[ac_idx]
     else:
         aircraft_positions = aircraft.positions[ac_idx]
-        
+
     active_bat = aircraft.flight_times[ac_idx]/aircraft.max_flight_times[ac_idx]
-    
+
     dist_to_tower = np.linalg.norm(aircraft_positions-tower_centre,axis=1)
     centroid = np.mean(aircraft_positions,axis=0)
     dist_to_centroid = np.linalg.norm(aircraft_positions-centroid,axis=1)
-    
+
     g = 10
     a = 5
-    
-    heuristics = np.log(1+((dist_to_tower+dist_to_centroid)/(g*(active_bat+1e-100))))**(active_bat*a)
-    
-    return heuristics
+
+    return np.log(
+        1
+        + (
+            (dist_to_tower + dist_to_centroid)
+            / (g * (active_bat + 1e-100) * 100)
+        )
+    ) ** (active_bat * a)
 
 def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, new_leader = False):
     leaders = []
@@ -54,34 +58,20 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
                 leaders.append(None)
                 continue
             heuristics = get_heuristics(towers, k, candidates, aircraft, with_error=True)
+            m = np.mean(heuristics)
             true_heuristics = get_heuristics(towers, k, candidates, aircraft, with_error= False)
             best = np.argmin(heuristics)
             true_best = np.argmin(true_heuristics)
             
-            leaders.append(candidates[best])
+            if previous_gateways[k] in candidates:
+                leaders.append(previous_gateways[k])
+            else:
+                leaders.append(candidates[best])
             heuristic_logs.append([best, true_best, heuristics, true_heuristics])
 
     
     return leaders, heuristic_logs
 
-
-def force_update_accelerations(leaders, aircraft, towers,active_aircraft):
-    for tower,leader in enumerate(leaders):
-        if leader is None:
-            continue
-        
-        not_active = np.setdiff1d(towers.aircraft_list[tower], active_aircraft)
-        active = np.setdiff1d(towers.aircraft_list[tower], not_active)
-        
-        if len(active)<=1:
-            continue
-        
-        pos = aircraft.positions[leader]
-        tower_centre = towers.centres[tower]
-        
-        vec = np.clip(-(pos-tower_centre),-0.5*aircraft.max_accel, 0.5*aircraft.max_accel)
-        
-        aircraft.accelerations[leader] = vec
 
 
         

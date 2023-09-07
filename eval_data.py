@@ -1,6 +1,6 @@
 import numpy as np
 
-data = np.load('out/seed_test_run4.npy', allow_pickle=True)
+data = np.load('out/2IC-reproducable/seed_test_run5.npy', allow_pickle=True)
 print(data.shape)
 
 print(data[-1,0,0])
