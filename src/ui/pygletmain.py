@@ -161,7 +161,11 @@ class SimUI(pyglet.window.Window):
             else:
                 ac = pyglet.shapes.Polygon(*points,color=(0,0,0), batch=ac_batch)
             
-            ac_elems.append((outline,ac, label, error))
+            waypoint = self.env.state.waypoints[k]
+            wpt = pyglet.shapes.Circle(*waypoint,15,color=(0,0,0,100), batch=ac_batch)
+            wpt_line = pyglet.shapes.Line(*waypoint, *self.env.state.positions[k], color=(0,0,0,255), batch=ac_batch)
+            
+            ac_elems.append((outline,ac, label, error, wpt, wpt_line))
             
         ac_batch.draw()
             

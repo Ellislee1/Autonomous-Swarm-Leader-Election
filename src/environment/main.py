@@ -10,6 +10,7 @@ from .tasks import TaskManager
 from src.logging import Logger
 from LeaderElectionAlgorithms import Gateway_Heirarchy
 from LeaderElectionAlgorithms import Age_Ring_Heirarchy
+from .waypoint_functions import update_waypoints
 
 
 class State:
@@ -72,7 +73,7 @@ class Environment:
         self.running = False # A flag for if the sim is running
         self.grid_centre = grid_centre # The centre coordinates for the middle hex
         
-        self.__state = State(bounds, sim_t) # Instantiate the state (aircraft)
+        self.__state = State(bounds, sim_t, 0) # Instantiate the state (aircraft)
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(bounds, self.towers, n_tasks)
@@ -146,6 +147,7 @@ class Environment:
             s = time.perf_counter()
 
             # if update_counter % 60 == 0:
+            self.state.waypoints = update_waypoints(self.state.position_error, self.state.waypoints, self.leader_election.are_2IC, self.state.bounds, self.towers, np.where(self.state.active==True)[0])
             self.__state.update(ts) # Update the aircraft environment
             self.towers.update_towers(self.__state.aircraft) # Update the tower environment
             self.task_manager.update(round(update_counter*self.ts,2), self.towers, self.__state, round(self.__state.sim_t/1000,2), self.ts, self.leader_election.are_2IC)
@@ -169,8 +171,8 @@ class Environment:
     def reset(self, N=30, n_tasks=5, seed = None):
         # if seed is not None:
         #     np.random.seed(seed)
-        print(self.sim_run)
-        np.random.seed(self.seeds[self.sim_run-1])
+        # print(self.sim_run)
+        # np.random.seed(self.seeds[self.sim_run-1])
         
         
         self.__state.reset(0, N)

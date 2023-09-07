@@ -6,11 +6,11 @@ import pyglet
 
 
 SCREEN_SIZE = (1200,900)
-N_SIMS = 5
-N_TASKS = 15
+N_SIMS = 1
+N_TASKS = 0
 TS = 1/30
 PATH = 'out/seed_test'
-N_AC = 30
+N_AC = 10
 SEED = None
 
 env = Environment(bounds=SCREEN_SIZE,grid_centre=np.array(SCREEN_SIZE)/2, n_tasks=N_TASKS)
@@ -37,9 +37,9 @@ axes[0].set_xlim(0,SCREEN_SIZE[0]/env.scale)
 axes[0].set_ylim(SCREEN_SIZE[1]/env.scale,0)
 axes[0].set_title(f'Positions (Scale={env.scale})')
 
-time_series = np.arange(0,log.shape[0],1)/10
+time_series = np.arange(0,log.shape[0],1)*TS
 
-axes[1].plot(time_series,np.clip(1-(log[:,:,7]/log[:,:,8]),0,1))
+axes[1].plot(time_series,np.clip(1-((log[:,:,7]+(env.state.flight_time_bounds[-1]-log[:,:,8]))/env.state.flight_time_bounds[-1]),0,1))
 axes[1].set_xlim(0,time_series[-1])
 axes[1].set_title('Remaining Battery %')
 
