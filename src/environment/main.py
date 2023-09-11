@@ -86,7 +86,7 @@ class Environment:
         
         self.bounds = bounds
         
-        self.seeds = [2099, 9281,  340, 1788, 4427, 1130, 2390,  917,  955, 8448, 9310]
+        self.seeds = [95854,  2665, 77796, 44574, 27190, 97559,   946, 33940, 53924, 73451, 78627, 18778, 41489, 55854, 11455, 81799]
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
