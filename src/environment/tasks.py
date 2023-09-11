@@ -1,7 +1,7 @@
 import numpy as np
 
 class TaskManager:
-    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 3, rand_interval = (12,60)):
+    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 5, rand_interval = (12,60)):
         self.area = area
         tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
         self.tasks, self.tower_assignments = self.check_in_tower(tasks, towers)
@@ -12,6 +12,10 @@ class TaskManager:
         self.rand_interval = rand_interval
         
         self.next_random = np.random.choice(self.rand_interval)
+        self.log = []
+    
+    def save_log(self, path):
+        np.save(path, self.log)
     
     def add_tasks(self, towers, n_tasks = 1):
         tasks = np.round(np.random.uniform((0,0), self.area,(n_tasks,2)),0)
@@ -53,6 +57,7 @@ class TaskManager:
             print(self.compleated,[0]*d)
             self.compleated = np.append(self.tasks, [0]*d)
         
+        cycle = []
         for i in range(len(self.tower_assignments)):
             tower_idx = self.tower_assignments[i]
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])
@@ -64,7 +69,10 @@ class TaskManager:
             if gateway:
                 active_ac = active_ac[active_ac != gateway]
             
-            self.compleated[i] += np.round((len(active_idxs)*ts)/dupes,3)
+            update_val = np.round((len(active_idxs)*ts)/dupes,3)*1.5
+            self.compleated[i] += update_val
+            
+            cycle.append([i, len(active_idxs), update_val, self.compleated])
             
             if len(active_ac)> 0:
                 
@@ -73,9 +81,9 @@ class TaskManager:
                 else:
                     centre = aircraft.aircraft.position_error[gateway]
             
-                accels = np.clip(-(aircraft.aircraft.position_error[active_ac]-centre), -aircraft.aircraft.max_accel, aircraft.aircraft.max_accel)
-                aircraft.aircraft.accelerations[active_ac,:] = accels
-                
+                # accels = np.clip(-(aircraft.aircraft.position_error[active_ac]-centre), -aircraft.aircraft.max_accel, aircraft.aircraft.max_accel)
+                # aircraft.aircraft.accelerations[active_ac,:] = accels
+        self.log.append(cycle)
         
         
         finished = np.where(self.compleated >=100.)[0]

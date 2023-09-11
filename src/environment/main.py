@@ -86,7 +86,7 @@ class Environment:
         
         self.bounds = bounds
         
-        self.seeds = [112,133,343,222,143]
+        self.seeds = [112,133,343,222,143,3432,232,566,447,100,11]
         
         
     @property # The sim time formatted in Hours:Minutes:Seconds.miliseconds
@@ -127,7 +127,8 @@ class Environment:
             self.sim_run+=1
             self.reset(N, n_tasks, seed = seed)
             self.run(ts)
-            self.leader_election.save_log(f'{path}_run{self.sim_run}')
+            self.leader_election.save_log(f'{path}_aircraft_data{self.sim_run}')
+            self.task_manager.save_log(f'{path}_task_data{self.sim_run}')
         
     def run(self, ts=0.01):
         """The main run loop
@@ -145,7 +146,7 @@ class Environment:
             s = time.perf_counter()
 
             # if update_counter % 60 == 0:
-            self.state.waypoints = update_waypoints(self.state.position_error, self.state.waypoints, self.leader_election.are_2IC, self.state.bounds, self.towers, np.where(self.state.active==True)[0], self.task_manager.tasks)
+            self.state.waypoints = update_waypoints(self.state.position_error, self.state.waypoints, self.leader_election.are_2IC, self.state.bounds, self.towers, np.where(self.state.active==True)[0], self.task_manager)
             self.__state.update(ts) # Update the aircraft environment
             self.towers.update_towers(self.__state.aircraft) # Update the tower environment
             self.task_manager.update(round(update_counter*self.ts,2), self.towers, self.__state, round(self.__state.sim_t/1000,2), self.ts, self.leader_election.are_2IC)
@@ -167,10 +168,10 @@ class Environment:
         return np.array(self.__state.state_log)
     
     def reset(self, N=30, n_tasks=5, seed = None):
-        # if seed is not None:
-        #     np.random.seed(seed)
-        # print(self.sim_run)
-        # np.random.seed(self.seeds[self.sim_run-1])
+        if seed is not None:
+            np.random.seed(seed)
+            
+        np.random.seed(self.seeds[self.sim_run-1])
         
         
         self.__state.reset(0, N)

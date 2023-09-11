@@ -1,6 +1,6 @@
 import numpy as np
 
-def update_waypoints(ac_positions, waypoints, active_2IC, world_bounds, towers, active_ac, tasks):
+def update_waypoints(ac_positions, waypoints, active_2IC, world_bounds, towers, active_ac, task_manager, heat_map = True):
     dist = np.linalg.norm(ac_positions-waypoints, axis=-1)
 
     update = np.where(dist <= 15)[0]
@@ -13,8 +13,24 @@ def update_waypoints(ac_positions, waypoints, active_2IC, world_bounds, towers, 
     idxs = np.setdiff1d(update, active_2IC) if active_2IC is not None else update
     new_waypoints[idxs] = np.random.randint((0,0),world_bounds, (len(idxs),2))
 
-    new_waypoints = update_task_waypoints(ac_positions, new_waypoints, active_2IC, towers, active_ac, tasks, update)
-    
+    tower_assignments = task_manager.tower_assignments
+    unique_task_towers = np.unique(tower_assignments)
+    unique_task_towers = unique_task_towers[active_2IC[unique_task_towers]!=-1]
+
+    tow_weights = [
+        len(np.where(tower_assignments == tower)[0])
+        for tower in unique_task_towers
+    ]
+
+    if len(unique_task_towers) > 0:
+        for ac in update:
+            dists = np.linalg.norm(towers.centres[unique_task_towers]-ac_positions[ac], axis=1)/tow_weights
+            best = np.argmin(dists)
+            
+            new_waypoints[ac] = np.random.normal(towers.centres[unique_task_towers[best]],70,2)
+
+    new_waypoints = update_task_waypoints(ac_positions, new_waypoints, active_2IC, towers, active_ac, task_manager.tasks, update)
+
     for idx in active_2IC:
         if idx == -1:
             continue
