@@ -9,7 +9,7 @@ SCREEN_SIZE = (1200,900)
 N_SIMS = 10
 N_TASKS = 20
 TS = 1/30
-PATH = 'out/heat_map'
+PATH = 'out/heatmap/heatmap'
 N_AC = 30
 SEED = None
 

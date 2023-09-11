@@ -1,7 +1,7 @@
 import numpy as np
 
 class TaskManager:
-    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 5, rand_interval = (12,60)):
+    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 5, rand_interval = (30,30)):
         self.area = area
         tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
         self.tasks, self.tower_assignments = self.check_in_tower(tasks, towers)
@@ -51,12 +51,12 @@ class TaskManager:
         if sim_time>= self.next_random:
             self.add_tasks(towers,n_tasks=self.n_random)
             self.next_random += np.random.choice(self.rand_interval)
-            
+
         if len(self.compleated)<len(self.tasks):
             d = len(self.tasks)-len(self.compleated)
             print(self.compleated,[0]*d)
             self.compleated = np.append(self.tasks, [0]*d)
-        
+
         cycle = []
         for i in range(len(self.tower_assignments)):
             tower_idx = self.tower_assignments[i]
@@ -68,24 +68,21 @@ class TaskManager:
             gateway = active_gateways[tower_idx]
             if gateway:
                 active_ac = active_ac[active_ac != gateway]
-            
+
             update_val = np.round((len(active_idxs)*ts)/dupes,3)*1.5
             self.compleated[i] += update_val
-            
+
             cycle.append([i, len(active_idxs), update_val, self.compleated])
-            
+
             if len(active_ac)> 0:
-                
-                if not gateway:
-                    centre = towers.centres[self.tower_assignments[i]]
-                else:
+                if gateway:
                     centre = aircraft.aircraft.position_error[gateway]
-            
-                # accels = np.clip(-(aircraft.aircraft.position_error[active_ac]-centre), -aircraft.aircraft.max_accel, aircraft.aircraft.max_accel)
-                # aircraft.aircraft.accelerations[active_ac,:] = accels
-        self.log.append(cycle)
-        
-        
+
+                else:
+                    centre = towers.centres[self.tower_assignments[i]]
+        self.log.append([cycle, self.total_tasks, len(self.tasks)])
+
+
         finished = np.where(self.compleated >=100.)[0]
         if len(finished) > 0:
             self.update_tasks(finished, towers)
