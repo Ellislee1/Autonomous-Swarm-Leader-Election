@@ -1,6 +1,6 @@
 import numpy as np
 
-data = np.load('out/2IC-reproducable/seed_test_run5.npy', allow_pickle=True)
+data = np.load('out/no_heatmap/no_heat_map_aircraft_data1.npy', allow_pickle=True)
 print(data.shape)
 
 print(data[-1,0,0])
@@ -20,7 +20,7 @@ print(np.sum(changed,axis=0), np.mean(np.sum(changed,axis=0)))
 s = np.sum(changed,axis=0)
 w = np.where(s > 0)[0]
 s=s[w]
-print(np.mean(s))
+print(np.median(s))
 
 results = []
 for i in range(data.shape[1]):

@@ -67,7 +67,7 @@ class Aircraft:
         self.flight_times = np.append(self.flight_times, [0.])
         self.max_flight_times = np.append(self.max_flight_times, max_flight_time)
         self.heuristics = np.append(self.heuristics, [0])
-        self.waypoints = np.append(self.waypoints, [pos], axis=0)
+        self.waypoints = np.append(self.waypoints, np.random.randint((0,0),self.bounds, (1,2)), axis=0)
         self.prev_error = np.append(self.prev_error, np.zeros((1,2)),axis=0)
         self.integral_error = np.append(self.integral_error, np.zeros((1,2)),axis=0)
 
@@ -83,7 +83,7 @@ class Aircraft:
         self.flight_times = np.array([0.])
         self.max_flight_times = np.array([max_flight_time])
         self.heuristics = np.array([0])
-        self.waypoints = np.array([pos])
+        self.waypoints = np.random.randint((0,0),self.bounds, (1,2))
         self.prev_error = np.zeros((1,2))
         self.integral_error = np.zeros((1,2))
         
@@ -149,6 +149,8 @@ class Aircraft:
         self.validate_ac(bounds, active_idxs) # Make sure aircraft dont leave the environment
         
         self.update_heuristics(ts)
+        
+        # print(self.updates, self.t_step,self.active, 'HERE')
     
     # def update_waypoints(self):
     #     dist = np.linalg.norm(self.positions-self.waypoints, axis=-1)
@@ -164,7 +166,10 @@ class Aircraft:
         error = self.waypoints - self.positions
         
         # Calculate direction vector from aircraft to waypoint
-        direction_vector = error / np.linalg.norm(error, axis=1)[:, np.newaxis]
+        sub = np.linalg.norm(error, axis=1)[:, np.newaxis]
+
+        direction_vector = error / sub
+        
     
         
         # Calculate desired velocity vector towards the waypoint

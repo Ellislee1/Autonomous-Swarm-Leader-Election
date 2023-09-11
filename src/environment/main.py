@@ -60,7 +60,7 @@ class State:
          
         for _ in range(N): # Add N aircraft
             self.aircraft.add_ac(self.bounds)
-            
+        
         self.log() # Begin the logging
     
                     
