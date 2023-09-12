@@ -1,7 +1,7 @@
 import numpy as np
 
 class TaskManager:
-    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 5, rand_interval = (30,30)):
+    def __init__(self, area, towers, n_tasks = 0, random_tasks = True, n_random = 7, rand_interval = (30,30)):
         self.area = area
         tasks = np.round(np.random.uniform((0,0), area,(n_tasks,2)),0)
         self.tasks, self.tower_assignments = self.check_in_tower(tasks, towers)
@@ -54,8 +54,7 @@ class TaskManager:
 
         if len(self.compleated)<len(self.tasks):
             d = len(self.tasks)-len(self.compleated)
-            print(self.compleated,[0]*d)
-            self.compleated = np.append(self.tasks, [0]*d)
+            self.compleated = np.append(self.compleated, np.zeros(d))
 
         cycle = []
         for i in range(len(self.tower_assignments)):

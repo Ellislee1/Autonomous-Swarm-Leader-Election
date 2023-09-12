@@ -41,6 +41,8 @@ def update_waypoints(ac_positions, waypoints, active_2IC, world_bounds, towers, 
                     wpt_counts = [len(np.where(waypoint_towers==tower)[0]) for tower in unique_task_towers]
                     
                     dists=np.array(dists)/(np.array(tow_weights)/np.array(1000 if wpt_counts == 0 else wpt_counts))
+                    # dists=np.array(dists)/(np.array(tow_weights))
+                    
                     
                     if np.all(dists > 1000):
                         v = np.random.randint((0,0),world_bounds,2)
@@ -48,9 +50,14 @@ def update_waypoints(ac_positions, waypoints, active_2IC, world_bounds, towers, 
                         best = np.argmin(dists)
                         v= np.random.normal(towers.centres[unique_task_towers[best]],70,2)
                     
+                    # best = np.argmin(dists)
+                    # v= np.random.normal(towers.centres[unique_task_towers[best]],70,2)
+                    
                     new_waypoints[ac] = v
-
-    new_waypoints[idxs] = np.random.randint((0,0),world_bounds, (len(idxs),2))
+        else:
+             new_waypoints[idxs] = np.random.randint((0,0),world_bounds, (len(idxs),2))
+    else:
+        new_waypoints[idxs] = np.random.randint((0,0),world_bounds, (len(idxs),2))
             
 
     new_waypoints = update_task_waypoints(ac_positions, new_waypoints, active_2IC, towers, active_ac, task_manager.tasks, update)

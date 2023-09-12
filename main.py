@@ -6,8 +6,8 @@ import pyglet
 
 
 SCREEN_SIZE = (1200,900)
-N_SIMS = 15
-N_TASKS = 10
+N_SIMS = 10
+N_TASKS = 15
 TS = 1/30
 PATH = 'out/no_heatmap/no_heatmap'
 N_AC = 30

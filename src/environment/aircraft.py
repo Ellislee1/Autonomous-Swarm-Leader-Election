@@ -33,7 +33,7 @@ class Aircraft:
         
         self.updates = 0 # Howmany updates have occured
         
-        self.flight_time_bounds = (500,700)
+        self.flight_time_bounds = (300,900)
         self.t_step = 0
     
     def add_ac(self, bounds:(float,float), pos:(float,float)=None, vel:(float,float)=None, accel:(float,float)=None):
@@ -45,7 +45,8 @@ class Aircraft:
         pos = np.random.uniform((0,0), bounds, 2) if pos is None else np.asarray(pos)
         vel = np.random.uniform(-self.max_vel, self.max_vel, 2) if vel is None else np.asarray(vel)
         accel = np.random.uniform(-self.max_accel, self.max_accel,2) if accel is None else np.asarray(accel)
-        max_flight_time = np.random.uniform(*self.flight_time_bounds)
+        # max_flight_time = np.random.uniform(*self.flight_time_bounds)
+        max_flight_time = np.clip(np.random.normal(7,2)*100, *self.flight_time_bounds)
 
         # Append aircraft to the state storers
         if self.n_ac == 0:
