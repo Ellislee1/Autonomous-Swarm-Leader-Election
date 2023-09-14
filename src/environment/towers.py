@@ -20,6 +20,9 @@ class Towers:
         self.aircraft_list = []
         self.n_towers = 0
         
+        self.connection = []
+        self.t = 0
+        
         self.gradients = gen_gradients(C1, C2, 10)
     
     @property
@@ -42,7 +45,7 @@ class Towers:
 
         
     
-    def update_towers(self, aircraft):
+    def update_towers(self, aircraft,ts, random = True):
         ac, tower_assignments = self.get_tower(aircraft.positions)
 
 
@@ -52,6 +55,21 @@ class Towers:
             new_aircraft_list[tower_idx].append(ac_idx)
 
         self.aircraft_list = new_aircraft_list
+
+        if random and round(self.t,3) % 5 ==0:
+            new_connections = []
+            new_active = []
+            
+            for i in range(len(self.connection)):
+                n = len(self.aircraft_list[i])
+                v= 0 if n == 0 else np.clip(np.emath.logn(13,n),0,1)
+
+                new_connections.append(v)
+                e = np.random.rand()
+                self.active[i] = e>v
+                
+            self.connection = new_connections
+        self.t+=ts
 
         
     @property
@@ -105,6 +123,7 @@ class Towers:
         self.shape_verts = np.array([tower[6]])
         self.centres = np.array([tower[7]])
         self.aircraft_list.append([])
+        self.connection.append(1)
 
     def append_tower(self, tower):
         self.cube_coords = np.append(self.cube_coords, [tower[:2]], axis=0)
@@ -115,6 +134,7 @@ class Towers:
         self.shape_verts = np.append(self.shape_verts,[tower[6]], axis=0)
         self.centres = np.append(self.centres,[tower[7]], axis=0)
         self.aircraft_list.append([])
+        self.connection.append(1)
         
     def xy_to_cubic_hex(self, points):
         relative_qs = ((2./3)* (points[:,0]-self.offsets[0]))/self.sizes

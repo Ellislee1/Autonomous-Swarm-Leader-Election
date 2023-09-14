@@ -33,10 +33,13 @@ class TaskManager:
         
         self.total_tasks += n_tasks
     
-    def check_in_tower(self, tasks, towers):
+    def check_in_tower(self, tasks, towers, random_active=True):
         task, tower = towers.get_tower(tasks)
         active_status = towers.active[tower]
 
+        if random_active:
+            return tasks,tower
+        
         while not all(active_status):
             invalid = np.where(active_status == False)[0]
             
@@ -58,6 +61,9 @@ class TaskManager:
 
         cycle = []
         for i in range(len(self.tower_assignments)):
+            if not towers.active[self.tower_assignments[i]]:
+                continue
+            
             tower_idx = self.tower_assignments[i]
             dupes = len(np.where(self.tower_assignments == self.tower_assignments[i])[0])
             reg_ac = towers.aircraft_list[self.tower_assignments[i]]

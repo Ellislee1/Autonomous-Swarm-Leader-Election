@@ -32,7 +32,7 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
 
     if not new_leader:
         for i,leader in enumerate(previous_gateways):
-            if leader is not None and leader in active_aircraft and leader in towers.aircraft_list[i]:
+            if leader is not None and leader in active_aircraft and leader in towers.aircraft_list[i] and towers.active[i]:
                 leaders.append(leader)
             else:
                 leaders.append(None)
