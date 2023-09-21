@@ -7,9 +7,9 @@ import pyglet
 
 SCREEN_SIZE = (1200,900)
 N_SIMS = 10
-N_TASKS = 0
+N_TASKS = 10
 TS = 1/30
-PATH = 'out/age_ring_2/age_ring_2'
+PATH = 'out/dump/dump'
 N_AC = 30
 SEED = None
 
@@ -24,7 +24,7 @@ env_thread = threading.Thread(target=env.run_n,args=[N_SIMS, TS, N_AC, N_TASKS, 
 env_thread.start()
 # ui.run()
 # pyglet.clock.schedule_interval(lambda dt: ui.flip(), 1)
-pyglet.app.run(1/10)
+pyglet.app.run(1/60)
 
 log = env.stop()
 env_thread.join()
