@@ -8,8 +8,8 @@ from .aircraft import Aircraft
 from .towers import Towers
 from .tasks import TaskManager
 from src.logging import Logger
-from LeaderElectionAlgorithms import Gateway_Heirarchy
-from LeaderElectionAlgorithms import Age_Ring_Heirarchy
+from LeaderElectionAlgorithms import Gateway_Heirarchy, Age_Ring_Heirarchy,Random_Election
+
 from .waypoint_functions import update_waypoints
 
 
@@ -77,7 +77,7 @@ class Environment:
         
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(bounds, self.towers, n_tasks)
-        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
+        self.leader_election = Age_Ring_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
         self.sim_run = 0
@@ -157,7 +157,7 @@ class Environment:
             sim_t = update_counter*self.ts
 
             if not any(ac[-1] for ac in self.state):
-                self.running = False # Exit the simulation when no aircraft are active
+                self.running = False # Exit the simulation when no aircraft are active\
     
     def stop(self):
         """Manual stopping of the simulation (for UI version)
@@ -177,7 +177,7 @@ class Environment:
         print(self.state.max_flight_times)
         self.towers = self.gen_towers(random_out=0) # Generate the towers (generated in a spiral from the centre.)
         self.task_manager = TaskManager(self.bounds, self.towers, n_tasks)
-        self.leader_election = Gateway_Heirarchy(self.towers.n_towers)
+        self.leader_election = Age_Ring_Heirarchy(self.towers.n_towers)
         self.start_time = 0
         self.logger = Logger()
     

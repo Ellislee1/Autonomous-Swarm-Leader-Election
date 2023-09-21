@@ -9,7 +9,7 @@ SCREEN_SIZE = (1200,900)
 N_SIMS = 10
 N_TASKS = 0
 TS = 1/30
-PATH = 'out/heatmap_unfiltered_p7_towers/heatmap_unfiltered_p7_towers'
+PATH = 'out/age_ring_2/age_ring_2'
 N_AC = 30
 SEED = None
 

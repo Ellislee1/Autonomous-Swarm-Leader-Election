@@ -1,9 +1,9 @@
 import numpy as np
-from .gateway_election import get_gateway_leaders, force_update_accelerations
+from .gateway_election import get_gateway_leaders
 from .leader_election import leader_election
 from functools import reduce
 
-class Ring_Election:
+class Leader_Election:
     def __init__(self, n_towers, frequency:(int) = 50):
         self.are_leaders = None
         self.are_2IC = [None]*n_towers
@@ -19,9 +19,7 @@ class Ring_Election:
         np.save(path, self.logging)
         np.save(f'{path}-heuristics', self.true_logging)
     
-
-    def log(self, aircraft, towers, sim_t, heuristics = []):
-
+    def log(self, aircraft, towers, sim_t, heuristics=[]):
         state = []
         self.true_logging.append(heuristics)
         
@@ -66,9 +64,9 @@ class Ring_Election:
         in_towers = reduce(lambda x,y: x+y, in_towers)
 
         active_idxs = np.intersect1d(in_towers, active_idxs)
-
-        return heursitsic_data
         
+        return heursitsic_data
+
         # if self.are_leaders is None or any(
         #     leader not in active_idxs for leader in self.are_leaders
         # ):

@@ -28,7 +28,7 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
 
     if not new_leader:
         for i,leader in enumerate(previous_gateways):
-            if leader is not None and leader in active_aircraft and leader in towers.aircraft_list[i]:
+            if leader is not None and leader in active_aircraft and leader in towers.aircraft_list[i] and towers.active[i]:
                 leaders.append(leader)
             else:
                 leaders.append(None)
@@ -46,18 +46,6 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
             leaders.append(None)
             continue
 
-        # if len(tower_ac) <2  and tower_ac[0] in active_aircraft:
-        #     leaders.append(tower_ac[0])
-        # else:
-        #     candidates = np.intersect1d(tower_ac, active_aircraft)
-        #     if len(candidates) == 0:
-        #         leaders.append(None)
-        #         continue
-        #     heuristics = get_heuristics(towers, k, candidates, aircraft)
-        #     best = np.argmin(heuristics)
-            
-        #     leaders.append(candidates[best])
-
 
         candidates = np.intersect1d(tower_ac, active_aircraft)
         if len(candidates) == 0:
@@ -67,7 +55,8 @@ def get_gateway_leaders(aircraft, towers, active_aircraft, previous_gateways, ne
 
         # Since tower_ac list is already sorted, return the olders i.e. the
         # agent with the smaller number was initialised first
-        leaders.append(tower_ac[0])
+        # print(aircraft.flight_times[candidates])
+        leaders.append(candidates[np.argmax(aircraft.flight_times[candidates])])
 
         heuristics = get_heuristics(towers, k, candidates, aircraft, with_error=True)
         true_heuristics = get_heuristics(towers, k, candidates, aircraft, with_error= False)
